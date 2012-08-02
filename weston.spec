@@ -1,46 +1,67 @@
 #
 # Conditional build:
-%bcond_with	clients		# non-simple + full GL clients
+%bcond_without	drm		# DRM compositor
 %bcond_with	openwfd		# OpenWF compositor
+%bcond_without	wayland		# wayland (nested) compositor
+%bcond_without	x11		# X11 compositor
+%bcond_without	wlaunch		# weston launch
+%bcond_without	xwayland	# X server launcher
+%bcond_without	sclients	# simple clients
+%bcond_with	clients		# non-simple + full GL clients
 #
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	0.85.0
-Release:	1
+Version:	0.95.0
+Release:	0.1
 License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	fb53b5767a21cad91fad94d735835d2b
+# Source0-md5:	77c87d8cc15e759ff512f9584d37e8a8
 URL:		http://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 BuildRequires:	Mesa-libGLES-devel
-BuildRequires:	Mesa-libgbm-devel
-BuildRequires:	Mesa-libwayland-egl-devel
-BuildRequires:	libdrm-devel >= 2.4.23
+# for wayland and sclients, but also desktop-shell, which is always enabled
+BuildRequires:	Mesa-libwayland-egl-devel >= 8.1
+BuildRequires:	cairo-devel >= 1.10.0
+BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
-BuildRequires:	libxcb-devel
+BuildRequires:	libwebp-devel
 BuildRequires:	pixman-devel
 BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
-BuildRequires:	udev-devel >= 136
-# wayland-{client,server}
-BuildRequires:	wayland-devel = 0.85.0
-BuildRequires:	xorg-lib-libX11-devel
+# wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
+BuildRequires:	wayland-devel = 0.95.0
 BuildRequires:	xz
+%if %{with drm}
+BuildRequires:	Mesa-libgbm-devel
+BuildRequires:	mtdev-devel >= 1.1.0
+BuildRequires:	udev-devel >= 136
+BuildRequires:	libdrm-devel >= 2.4.30
+%endif
 %if %{with openwfd}
+BuildRequires:	Mesa-libgbm-devel
 # what package?
 BuildRequires	pkgconfig(openwfd)
 %endif
+%if %{with x11}
+BuildRequires:	libxcb-devel
+BuildRequires:	xorg-lib-libX11-devel
+%endif
+%if %{with wlaunch}
+BuildRequires:	libdrm-devel
+BuildRequires:	pam-devel
+BuildRequires:	systemd-devel
+%endif
+%if %{with xwayland}
+BuildRequires:	libxcb-devel
+%endif
 %if %{with clients}
-BuildRequires:	cairo-devel >= 1.10.0
-# +optionally cairo-egl >= 1.11.3?
+# optionally cairo-egl >= 1.11.3, [cairo-gl or cairo-glesv2]
 BuildRequires:	gdk-pixbuf2-devel >= 2.0
 BuildRequires:	glib2-devel >= 2.0
-BuildRequires:	libjpeg-devel
 BuildRequires:	poppler-glib-devel
-# libxkbcommon not released yet
-BuildRequires	pkgconfig(xkbcommon)
+BuildRequires	xorg-lib-libxkbcommon-devel
 %endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -62,9 +83,14 @@ programy klienckie demonstrujące różne aspekty protokołu Wayland.
 %build
 %configure \
 	%{!?with_clients:--disable-clients} \
+	%{!?with_drm:--disable-drm-compositor} \
+	%{!?with_sclients:--disable-simple-clients} \
 	--disable-setuid-install \
 	--disable-silent-rules \
-	%{!?with_static_libs:--disable-static}
+	%{!?with_static_libs:--disable-static} \
+	%{!?with_wlaunch:--disable-weston-launch} \
+	%{!?with_x11:--disable-x11-compositor} \
+	%{!?with_xwayland:--disable-xwayland}
 %{__make}
 
 %install
@@ -89,12 +115,18 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/weston-tablet-shell
 %endif
 %dir %{_libdir}/weston
+%if %{with drm}
 %attr(755,root,root) %{_libdir}/weston/drm-backend.so
+%endif
 %if %{with openwfd}
 %attr(755,root,root) %{_libdir}/weston/openwfd-backend.so
 %endif
+%if %{with wayland}
 %attr(755,root,root) %{_libdir}/weston/wayland-backend.so
+%endif
+%if %{with x11}
 %attr(755,root,root) %{_libdir}/weston/x11-backend.so
+%endif
 %attr(755,root,root) %{_libdir}/weston/desktop-shell.so
 %attr(755,root,root) %{_libdir}/weston/tablet-shell.so
 %{_datadir}/weston
