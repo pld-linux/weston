@@ -12,17 +12,17 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	0.95.0
+Version:	1.0.0
 Release:	1
 License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	77c87d8cc15e759ff512f9584d37e8a8
+# Source0-md5:	c33a470d9c23d0f0a04b1b9f1a034da4
 URL:		http://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 BuildRequires:	Mesa-libGLES-devel
 # for wayland and sclients, but also desktop-shell, which is always enabled
-BuildRequires:	Mesa-libwayland-egl-devel >= 9
+BuildRequires:	Mesa-libwayland-egl-devel >= 9.0-2
 BuildRequires:	cairo-devel >= 1.10.0
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
@@ -31,14 +31,14 @@ BuildRequires:	pixman-devel
 BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
 # wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
-BuildRequires:	wayland-devel = 0.95.0
+BuildRequires:	wayland-devel = 1.0.0
 BuildRequires:	xorg-lib-libxkbcommon-devel
 BuildRequires:	xz
 %if %{with drm}
 BuildRequires:	Mesa-libgbm-devel
+BuildRequires:	libdrm-devel >= 2.4.30
 BuildRequires:	mtdev-devel >= 1.1.0
 BuildRequires:	udev-devel >= 1:136
-BuildRequires:	libdrm-devel >= 2.4.30
 %endif
 %if %{with openwfd}
 BuildRequires:	Mesa-libgbm-devel
@@ -66,6 +66,7 @@ BuildRequires:	glib2-devel >= 2.0
 BuildRequires:	pkgconfig(cairo-egl) >= 1.11.3
 BuildRequires:	poppler-glib-devel
 %endif
+Requires:	Mesa-libwayland-egl >= 9.0-2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -111,6 +112,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc README
 %attr(755,root,root) %{_bindir}/wcap-decode
+%attr(755,root,root) %{_bindir}/weston-info
 # composer
 %attr(755,root,root) %{_bindir}/weston
 %if %{with wlaunch}
@@ -142,6 +144,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/weston/desktop-shell.so
 %attr(755,root,root) %{_libdir}/weston/tablet-shell.so
 %{_datadir}/weston
+%{_mandir}/man1/weston.1*
 
 # noinst, too common names - package in %{name}-demos with weston- prefix?
 # "simple clients"
