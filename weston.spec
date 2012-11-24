@@ -1,7 +1,6 @@
 #
 # Conditional build:
 %bcond_without	drm		# DRM compositor
-%bcond_with	openwfd		# OpenWF compositor
 %bcond_without	wayland		# wayland (nested) compositor
 %bcond_without	x11		# X11 compositor
 %bcond_without	wlaunch		# weston launch
@@ -39,11 +38,6 @@ BuildRequires:	Mesa-libgbm-devel
 BuildRequires:	libdrm-devel >= 2.4.30
 BuildRequires:	mtdev-devel >= 1.1.0
 BuildRequires:	udev-devel >= 1:136
-%endif
-%if %{with openwfd}
-BuildRequires:	Mesa-libgbm-devel
-# what package?
-BuildRequires	pkgconfig(openwfd)
 %endif
 %if %{with x11}
 BuildRequires:	libxcb-devel
@@ -128,9 +122,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/weston
 %if %{with drm}
 %attr(755,root,root) %{_libdir}/weston/drm-backend.so
-%endif
-%if %{with openwfd}
-%attr(755,root,root) %{_libdir}/weston/openwfd-backend.so
 %endif
 %if %{with wayland}
 %attr(755,root,root) %{_libdir}/weston/wayland-backend.so
