@@ -11,12 +11,12 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	1.0.3
+Version:	1.0.4
 Release:	1
 License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	f82ac2e013e6b6a6303ac4ba7b64c7f2
+# Source0-md5:	4191322b5f2f97c63e52ed88401804de
 URL:		http://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 BuildRequires:	Mesa-libGLES-devel
