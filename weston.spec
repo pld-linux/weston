@@ -11,12 +11,12 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	1.0.4
+Version:	1.0.5
 Release:	1
 License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	4191322b5f2f97c63e52ed88401804de
+# Source0-md5:	2f70393d577f06f89dc011ab6fec2bfa
 URL:		http://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 BuildRequires:	Mesa-libGLES-devel
@@ -136,6 +136,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/weston/tablet-shell.so
 %{_datadir}/weston
 %{_mandir}/man1/weston.1*
+%{_mandir}/man5/weston.ini.5*
 %{_mandir}/man7/weston-drm.7*
 
 # noinst, too common names - package in %{name}-demos with weston- prefix?
