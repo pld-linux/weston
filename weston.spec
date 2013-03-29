@@ -11,14 +11,15 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	1.0.5
+Version:	1.0.6
 Release:	1
 License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	2f70393d577f06f89dc011ab6fec2bfa
+# Source0-md5:	63202129d66d5514e572814da5dfa1f7
 URL:		http://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
+# GLESv2
 BuildRequires:	Mesa-libGLES-devel
 # for wayland and sclients, but also desktop-shell, which is always enabled
 BuildRequires:	Mesa-libwayland-egl-devel >= 9.0-2
@@ -54,6 +55,7 @@ BuildRequires:	pkgconfig(cairo-xcb)
 BuildRequires:	xorg-lib-libXcursor-devel
 %endif
 %if %{with clients}
+BuildRequires:	OpenGL-GLU-devel
 BuildRequires:	cairo-devel >= 1.11.3
 BuildRequires:	gdk-pixbuf2-devel >= 2.0
 BuildRequires:	glib2-devel >= 2.0
@@ -74,6 +76,23 @@ Weston zawiera kilka aplikacji demonstracyjnych dla projektu Wayland.
 Jest przykładowy serwer składający, który można uruchomić pod KMS, pod
 X11 lub pod innym serwerem składającym Wayland; są także proste
 programy klienckie demonstrujące różne aspekty protokołu Wayland.
+
+%package devel
+Summary:	Header files for Weston plugin development
+Summary(pl.UTF-8):	Pliki nagłówkowe do tworzenia wtyczek dla Westona
+Group:		Development/Libraries
+Requires:	Mesa-libEGL-devel >= 7.10
+# GLESv2
+Requires:	Mesa-libGLES-devel
+Requires:	pixman-devel
+Requires:	wayland-devel >= 1.0.0
+Requires:	xorg-lib-libxkbcommon-devel
+
+%description devel
+Header files for Weston plugin development.
+
+%description devel -l pl.UTF-8
+Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 
 %prep
 %setup -q
@@ -159,3 +178,8 @@ rm -rf $RPM_BUILD_ROOT
 # poppler
 #%attr(755,root,root) %{_bindir}/view
 %endif
+
+%files devel
+%defattr(644,root,root,755)
+%{_includedir}/weston
+%{_pkgconfigdir}/weston.pc
