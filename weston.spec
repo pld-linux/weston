@@ -1,3 +1,4 @@
+# TODO: freerdp >= 1.1.0
 #
 # Conditional build:
 %bcond_without	drm		# DRM compositor
@@ -11,12 +12,12 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	1.0.6
+Version:	1.2.2
 Release:	1
 License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	63202129d66d5514e572814da5dfa1f7
+# Source0-md5:	c1d6b180fe6a5e8d330eb6a4d177caeb
 URL:		http://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
@@ -24,6 +25,8 @@ BuildRequires:	Mesa-libGLES-devel
 # for wayland and sclients, but also desktop-shell, which is always enabled
 BuildRequires:	Mesa-libwayland-egl-devel >= 9.0-2
 BuildRequires:	cairo-devel >= 1.10.0
+BuildRequires:	colord-devel >= 0.1.27
+BuildRequires:	lcms2-devel >= 2
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
 BuildRequires:	libwebp-devel
@@ -31,7 +34,7 @@ BuildRequires:	pixman-devel
 BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
 # wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
-BuildRequires:	wayland-devel >= 1.0.0
+BuildRequires:	wayland-devel >= 1.2.0
 BuildRequires:	xorg-lib-libxkbcommon-devel
 BuildRequires:	xz
 %if %{with drm}
@@ -60,6 +63,7 @@ BuildRequires:	cairo-devel >= 1.11.3
 BuildRequires:	gdk-pixbuf2-devel >= 2.0
 BuildRequires:	glib2-devel >= 2.0
 BuildRequires:	pkgconfig(cairo-egl) >= 1.11.3
+BuildRequires:	pkgconfig(cairo-gl)
 BuildRequires:	poppler-glib-devel
 %endif
 Requires:	Mesa-libwayland-egl >= 9.0-2
@@ -85,7 +89,7 @@ Requires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
 Requires:	Mesa-libGLES-devel
 Requires:	pixman-devel
-Requires:	wayland-devel >= 1.0.0
+Requires:	wayland-devel >= 1.2.0
 Requires:	xorg-lib-libxkbcommon-devel
 
 %description devel
@@ -107,7 +111,8 @@ Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 	%{!?with_static_libs:--disable-static} \
 	%{!?with_wlaunch:--disable-weston-launch} \
 	%{!?with_x11:--disable-x11-compositor} \
-	%{!?with_xwayland:--disable-xwayland}
+	%{!?with_xwayland:--disable-xwayland} \
+	%{?with_clients:--with-cairo=gl}
 %{__make}
 
 %install
@@ -134,14 +139,20 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with clients}
 %attr(755,root,root) %{_bindir}/weston-terminal
 %attr(755,root,root) %{_libexecdir}/weston-desktop-shell
+%attr(755,root,root) %{_libexecdir}/weston-keyboard
 %attr(755,root,root) %{_libexecdir}/weston-screensaver
 %attr(755,root,root) %{_libexecdir}/weston-screenshooter
 %attr(755,root,root) %{_libexecdir}/weston-tablet-shell
 %endif
+%attr(755,root,root) %{_libexecdir}/weston-simple-im
 %dir %{_libdir}/weston
+%attr(755,root,root) %{_libdir}/weston/cms-colord.so
+%attr(755,root,root) %{_libdir}/weston/cms-static.so
 %if %{with drm}
 %attr(755,root,root) %{_libdir}/weston/drm-backend.so
 %endif
+%attr(755,root,root) %{_libdir}/weston/fbdev-backend.so
+%attr(755,root,root) %{_libdir}/weston/headless-backend.so
 %if %{with wayland}
 %attr(755,root,root) %{_libdir}/weston/wayland-backend.so
 %endif
@@ -158,25 +169,28 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/weston.ini.5*
 %{_mandir}/man7/weston-drm.7*
 
-# noinst, too common names - package in %{name}-demos with weston- prefix?
+# noinst by default - --enable-demo-clients and package in %{name}-demos?
 # "simple clients"
-#%attr(755,root,root) %{_bindir}/simple-egl
-#%attr(755,root,root) %{_bindir}/simple-shm
-#%attr(755,root,root) %{_bindir}/simple-touch
+#%attr(755,root,root) %{_bindir}/weston-simple-egl
+#%attr(755,root,root) %{_bindir}/weston-simple-shm
+#%attr(755,root,root) %{_bindir}/weston-simple-touch
 %if %{with clients}
-#%attr(755,root,root) %{_bindir}/clickdot
-#%attr(755,root,root) %{_bindir}/dnd
-#%attr(755,root,root) %{_bindir}/editor
-#%attr(755,root,root) %{_bindir}/eventdemo
-#%attr(755,root,root) %{_bindir}/flower
-#%attr(755,root,root) %{_bindir}/image
-#%attr(755,root,root) %{_bindir}/keyboard
-#%attr(755,root,root) %{_bindir}/resizor
-#%attr(755,root,root) %{_bindir}/smoke
+#%attr(755,root,root) %{_bindir}/weston-calibrator
+#%attr(755,root,root) %{_bindir}/weston-clickdot
+#%attr(755,root,root) %{_bindir}/weston-editor
+#%attr(755,root,root) %{_bindir}/weston-eventdemo
+#%attr(755,root,root) %{_bindir}/weston-fullscreen
+#%attr(755,root,root) %{_bindir}/weston-cliptest
+#%attr(755,root,root) %{_bindir}/weston-dnd
+#%attr(755,root,root) %{_bindir}/weston-flower
+#%attr(755,root,root) %{_bindir}/weston-image
+#%attr(755,root,root) %{_bindir}/weston-resizor
+#%attr(755,root,root) %{_bindir}/weston-smoke
+#%attr(755,root,root) %{_bindir}/weston-transformed
 # "full GL" clients
-#%attr(755,root,root) %{_bindir}/gears
+#%attr(755,root,root) %{_bindir}/weston-gears
 # poppler
-#%attr(755,root,root) %{_bindir}/view
+#%attr(755,root,root) %{_bindir}/weston-view
 %endif
 
 %files devel
