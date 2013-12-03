@@ -1,9 +1,10 @@
-# TODO: freerdp >= 1.1.0
 #
 # Conditional build:
 %bcond_without	drm		# DRM compositor
+%bcond_with	rdp		# RDP compositor (needs freerdp 1.1.0)
 %bcond_without	wayland		# wayland (nested) compositor
 %bcond_without	x11		# X11 compositor
+%bcond_without	vaapi		# vaapi recorder
 %bcond_without	wlaunch		# weston launch
 %bcond_without	xwayland	# X server launcher
 %bcond_without	sclients	# simple clients
@@ -12,12 +13,12 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	1.2.2
-Release:	3
+Version:	1.3.1
+Release:	1
 License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	c1d6b180fe6a5e8d330eb6a4d177caeb
+# Source0-md5:	ffe7c3bc0e7eb39a305cbbea8c7766f3
 URL:		http://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
@@ -26,16 +27,21 @@ BuildRequires:	Mesa-libGLES-devel
 BuildRequires:	Mesa-libwayland-egl-devel >= 9.0-2
 BuildRequires:	cairo-devel >= 1.10.0
 BuildRequires:	colord-devel >= 0.1.27
+%{?with_rdp:BuildRequires:	freerdp-devel >= 1.1.0}
 BuildRequires:	lcms2-devel >= 2
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
+%if %{with vaapi}
+BuildRequires:	libva-devel >= 0.34.0
+BuildRequires:	libva-drm-devel >= 0.34.0
+%endif
 BuildRequires:	libwebp-devel
 BuildRequires:	pixman-devel
 BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
 # wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
-BuildRequires:	wayland-devel >= 1.2.0
-BuildRequires:	xorg-lib-libxkbcommon-devel
+BuildRequires:	wayland-devel >= 1.3.0
+BuildRequires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 BuildRequires:	xz
 %if %{with drm}
 BuildRequires:	Mesa-libgbm-devel
@@ -67,6 +73,8 @@ BuildRequires:	pkgconfig(cairo-gl)
 BuildRequires:	poppler-glib-devel
 %endif
 Requires:	Mesa-libwayland-egl >= 9.0-2
+Requires:	wayland >= 1.3.0
+Requires:	xorg-lib-libxkbcommon >= 0.3.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -89,8 +97,8 @@ Requires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
 Requires:	Mesa-libGLES-devel
 Requires:	pixman-devel
-Requires:	wayland-devel >= 1.2.0
-Requires:	xorg-lib-libxkbcommon-devel
+Requires:	wayland-devel >= 1.3.0
+Requires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 
 %description devel
 Header files for Weston plugin development.
@@ -105,10 +113,12 @@ Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 %configure \
 	%{!?with_clients:--disable-clients} \
 	%{!?with_drm:--disable-drm-compositor} \
+	%{?with_rdp:--enable-rdp-compositor} \
 	%{!?with_sclients:--disable-simple-clients} \
 	--disable-setuid-install \
 	--disable-silent-rules \
 	%{!?with_static_libs:--disable-static} \
+	%{!?with_vaapi:--disable-vaapi-recorder} \
 	%{!?with_wlaunch:--disable-weston-launch} \
 	%{!?with_x11:--disable-x11-compositor} \
 	%{!?with_xwayland:--disable-xwayland} \
@@ -153,6 +163,9 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %attr(755,root,root) %{_libdir}/weston/fbdev-backend.so
 %attr(755,root,root) %{_libdir}/weston/headless-backend.so
+%if %{with rdp}
+%attr(755,root,root) %{_libdir}/weston/rdp-backend.so
+%endif
 %if %{with wayland}
 %attr(755,root,root) %{_libdir}/weston/wayland-backend.so
 %endif
