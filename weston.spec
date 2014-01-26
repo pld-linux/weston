@@ -13,12 +13,12 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	1.3.1
+Version:	1.4.0
 Release:	1
 License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	ffe7c3bc0e7eb39a305cbbea8c7766f3
+# Source0-md5:	4438d2b1f3c9ba9a4a2b10d89fac6fd0
 URL:		http://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
@@ -27,6 +27,7 @@ BuildRequires:	Mesa-libGLES-devel
 BuildRequires:	Mesa-libwayland-egl-devel >= 9.0-2
 BuildRequires:	cairo-devel >= 1.10.0
 BuildRequires:	colord-devel >= 0.1.27
+BuildRequires:	dbus-devel >= 1.6
 %{?with_rdp:BuildRequires:	freerdp-devel >= 1.1.0}
 BuildRequires:	lcms2-devel >= 2
 BuildRequires:	libjpeg-devel
@@ -40,7 +41,7 @@ BuildRequires:	pixman-devel
 BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
 # wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
-BuildRequires:	wayland-devel >= 1.3.0
+BuildRequires:	wayland-devel >= 1.4.0
 BuildRequires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 BuildRequires:	xz
 %if %{with drm}
@@ -56,7 +57,7 @@ BuildRequires:	xorg-lib-libX11-devel
 %if %{with wlaunch}
 BuildRequires:	libdrm-devel
 BuildRequires:	pam-devel
-BuildRequires:	systemd-devel
+BuildRequires:	systemd-devel >= 1:198
 %endif
 %if %{with xwayland}
 BuildRequires:	libxcb-devel
@@ -73,7 +74,7 @@ BuildRequires:	pkgconfig(cairo-gl)
 BuildRequires:	poppler-glib-devel
 %endif
 Requires:	Mesa-libwayland-egl >= 9.0-2
-Requires:	wayland >= 1.3.0
+Requires:	wayland >= 1.4.0
 Requires:	xorg-lib-libxkbcommon >= 0.3.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -97,7 +98,7 @@ Requires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
 Requires:	Mesa-libGLES-devel
 Requires:	pixman-devel
-Requires:	wayland-devel >= 1.3.0
+Requires:	wayland-devel >= 1.4.0
 Requires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 
 %description devel
@@ -152,7 +153,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/weston-keyboard
 %attr(755,root,root) %{_libexecdir}/weston-screensaver
 %attr(755,root,root) %{_libexecdir}/weston-screenshooter
-%attr(755,root,root) %{_libexecdir}/weston-tablet-shell
 %endif
 %attr(755,root,root) %{_libexecdir}/weston-simple-im
 %dir %{_libdir}/weston
@@ -162,6 +162,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/weston/drm-backend.so
 %endif
 %attr(755,root,root) %{_libdir}/weston/fbdev-backend.so
+%attr(755,root,root) %{_libdir}/weston/gl-renderer.so
 %attr(755,root,root) %{_libdir}/weston/headless-backend.so
 %if %{with rdp}
 %attr(755,root,root) %{_libdir}/weston/rdp-backend.so
@@ -176,7 +177,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/weston/xwayland.so
 %endif
 %attr(755,root,root) %{_libdir}/weston/desktop-shell.so
-%attr(755,root,root) %{_libdir}/weston/tablet-shell.so
 %{_datadir}/weston
 %{_mandir}/man1/weston.1*
 %{_mandir}/man5/weston.ini.5*
