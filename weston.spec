@@ -20,6 +20,7 @@ License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
 # Source0-md5:	8eb40d230efc2411f083c20656534780
+Patch0:		libinput4.patch
 URL:		http://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
@@ -122,6 +123,7 @@ Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %configure \
