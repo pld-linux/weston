@@ -63,7 +63,8 @@ BuildRequires:	xorg-lib-libX11-devel
 %if %{with wlaunch}
 BuildRequires:	libdrm-devel
 BuildRequires:	pam-devel
-BuildRequires:	systemd-devel >= 1:209
+# TODO: bump to 1:209 (required at runtime when built with such version)
+BuildRequires:	systemd-devel >= 1:198
 %endif
 %if %{with xwayland}
 BuildRequires:	libxcb-devel
@@ -90,7 +91,7 @@ Requires:	libva-drm >= 1.2.0
 %endif
 %{?with_drm:Requires:	mtdev >= 1.1.0}
 Requires:	pixman >= 0.26
-%{?with_wlaunch:Requires:	systemd-libs >= 1:209}
+%{?with_wlaunch:Requires:	systemd-libs >= 1:198}
 %{?with_drm:Requires:	udev-libs >= 1:136}
 Requires:	wayland >= 1.6.0
 Requires:	xorg-lib-libxkbcommon >= 0.3.0
