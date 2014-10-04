@@ -14,13 +14,12 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	1.5.0
-Release:	3
+Version:	1.6.0
+Release:	1
 License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	8eb40d230efc2411f083c20656534780
-Patch0:		libinput4.patch
+# Source0-md5:	c60ce9dde99a089db0539d8f6b557827
 URL:		http://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
@@ -32,19 +31,16 @@ BuildRequires:	colord-devel >= 0.1.27
 BuildRequires:	dbus-devel >= 1.6
 %{?with_rdp:BuildRequires:	freerdp-devel >= 1.1.0}
 BuildRequires:	lcms2-devel >= 2
-%{?with_libinput:BuildRequires:	libinput-devel >= 0.1.0}
+%{?with_libinput:BuildRequires:	libinput-devel >= 0.6.0}
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
-%if %{with vaapi}
-BuildRequires:	libva-devel >= 0.34.0
-BuildRequires:	libva-drm-devel >= 0.34.0
-%endif
+BuildRequires:	libunwind-devel
 BuildRequires:	libwebp-devel
-BuildRequires:	pixman-devel
+BuildRequires:	pixman-devel >= 0.26
 BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
 # wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
-BuildRequires:	wayland-devel >= 1.4.0
+BuildRequires:	wayland-devel >= 1.6.0
 BuildRequires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 BuildRequires:	xz
 %if %{with drm}
@@ -53,6 +49,13 @@ BuildRequires:	libdrm-devel >= 2.4.30
 BuildRequires:	mtdev-devel >= 1.1.0
 BuildRequires:	udev-devel >= 1:136
 %endif
+%if %{with vaapi}
+BuildRequires:	libva-devel >= 1.2.0
+BuildRequires:	libva-drm-devel >= 1.2.0
+# API versions
+BuildRequires:	pkgconfig(libva) >= 0.34.0
+BuildRequires:	pkgconfig(libva-drm) >= 0.34.0
+%endif
 %if %{with x11}
 BuildRequires:	libxcb-devel
 BuildRequires:	xorg-lib-libX11-devel
@@ -60,7 +63,7 @@ BuildRequires:	xorg-lib-libX11-devel
 %if %{with wlaunch}
 BuildRequires:	libdrm-devel
 BuildRequires:	pam-devel
-BuildRequires:	systemd-devel >= 1:198
+BuildRequires:	systemd-devel >= 1:209
 %endif
 %if %{with xwayland}
 BuildRequires:	libxcb-devel
@@ -80,15 +83,16 @@ Requires:	colord-libs >= 0.1.27
 Requires:	dbus-libs >= 1.6
 %{?with_rdp:Requires:	freerdp >= 1.1.0}
 %{?with_drm:Requires:	libdrm >= 2.4.30}
-%{?with_libinput:Requires:	libinput >= 0.1.0}
-%{?with_drm:Requires:	mtdev >= 1.1.0}
+%{?with_libinput:Requires:	libinput >= 0.6.0}
 %if %{with vaapi}
-Requires:	libva >= 0.34.0
-Requires:	libva-drm >= 0.34.0
+Requires:	libva >= 1.2.0
+Requires:	libva-drm >= 1.2.0
 %endif
-%{?with_wlaunch:Requires:	systemd-libs >= 1:198}
+%{?with_drm:Requires:	mtdev >= 1.1.0}
+Requires:	pixman >= 0.26
+%{?with_wlaunch:Requires:	systemd-libs >= 1:209}
 %{?with_drm:Requires:	udev-libs >= 1:136}
-Requires:	wayland >= 1.4.0
+Requires:	wayland >= 1.6.0
 Requires:	xorg-lib-libxkbcommon >= 0.3.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -111,8 +115,8 @@ Group:		Development/Libraries
 Requires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
 Requires:	Mesa-libGLES-devel
-Requires:	pixman-devel
-Requires:	wayland-devel >= 1.4.0
+Requires:	pixman-devel >= 0.26
+Requires:	wayland-devel >= 1.6.0
 Requires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 
 %description devel
@@ -123,7 +127,6 @@ Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %configure \
