@@ -132,6 +132,7 @@ Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 %patch0 -p1
 
 %build
+%{__autoconf}
 %configure \
 	%{!?with_clients:--disable-clients} \
 	%{!?with_drm:--disable-drm-compositor} \
