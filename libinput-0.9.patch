@@ -1,0 +1,154 @@
+From c54f23d8df4e758f097d127df4d44d7a00059cef Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Tue, 13 Jan 2015 11:55:37 +1000
+Subject: libinput-device: use the new merged scroll events
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+libinput now provides a single event for scroll events. Extract the axes from
+that event and split them into the wl events.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Jonas Ådahl <jadahl@gmail.com>
+
+diff --git a/src/libinput-device.c b/src/libinput-device.c
+index 8a48905..e68b54d 100644
+--- a/src/libinput-device.c
++++ b/src/libinput-device.c
+@@ -133,12 +133,27 @@ handle_pointer_axis(struct libinput_device *libinput_device,
+ 	struct evdev_device *device =
+ 		libinput_device_get_user_data(libinput_device);
+ 	double value;
++	enum libinput_pointer_axis axis;
++
++	axis = LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL;
++	if (libinput_event_pointer_has_axis(pointer_event, axis)) {
++		value = libinput_event_pointer_get_axis_value(pointer_event,
++							      axis);
++		notify_axis(device->seat,
++			    libinput_event_pointer_get_time(pointer_event),
++			    WL_POINTER_AXIS_VERTICAL_SCROLL,
++			    wl_fixed_from_double(value));
++	}
+ 
+-	value = libinput_event_pointer_get_axis_value(pointer_event);
+-	notify_axis(device->seat,
+-		    libinput_event_pointer_get_time(pointer_event),
+-		    libinput_event_pointer_get_axis(pointer_event),
+-		    wl_fixed_from_double(value));
++	axis = LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL;
++	if (libinput_event_pointer_has_axis(pointer_event, axis)) {
++		value = libinput_event_pointer_get_axis_value(pointer_event,
++							      axis);
++		notify_axis(device->seat,
++			    libinput_event_pointer_get_time(pointer_event),
++			    WL_POINTER_AXIS_HORIZONTAL_SCROLL,
++			    wl_fixed_from_double(value));
++	}
+ }
+ 
+ static void
+-- 
+cgit v0.10.2
+
+From 5dddd411d6d8587267529d0478c5dc68e9521047 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Thu, 15 Jan 2015 13:14:43 +1000
+Subject: libinput-device: use the discrete axis value for wheel events
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+libinput < 0.8 sent wheel click events with value 10. Since 0.8
+the value is the angle of the click in degrees but it now provides
+the click count as separate value. To keep backwards-compat with
+existing clients, we just send multiples of the click count.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Signed-off-by: Jonas Ådahl <jadahl@gmail.com>
+Reviewed-by: Jonas Ådahl <jadahl@gmail.com>
+
+diff --git a/src/libinput-device.c b/src/libinput-device.c
+index e68b54d..3ce74b8 100644
+--- a/src/libinput-device.c
++++ b/src/libinput-device.c
+@@ -126,6 +126,44 @@ handle_pointer_button(struct libinput_device *libinput_device,
+ 		      libinput_event_pointer_get_button_state(pointer_event));
+ }
+ 
++static double
++normalize_scroll(struct libinput_event_pointer *pointer_event,
++		 enum libinput_pointer_axis axis)
++{
++	static int warned;
++	enum libinput_pointer_axis_source source;
++	double value;
++
++	source = libinput_event_pointer_get_axis_source(pointer_event);
++	/* libinput < 0.8 sent wheel click events with value 10. Since 0.8
++	   the value is the angle of the click in degrees. To keep
++	   backwards-compat with existing clients, we just send multiples of
++	   the click count.
++	 */
++	switch (source) {
++	case LIBINPUT_POINTER_AXIS_SOURCE_WHEEL:
++		value = 10 * libinput_event_pointer_get_axis_value_discrete(
++								   pointer_event,
++								   axis);
++		break;
++	case LIBINPUT_POINTER_AXIS_SOURCE_FINGER:
++	case LIBINPUT_POINTER_AXIS_SOURCE_CONTINUOUS:
++		value = libinput_event_pointer_get_axis_value(pointer_event,
++							      axis);
++		break;
++	default:
++		value = 0;
++		if (warned < 5) {
++			weston_log("Unknown scroll source %d. Event discarded\n",
++				   source);
++			warned++;
++		}
++		break;
++	}
++
++	return value;
++}
++
+ static void
+ handle_pointer_axis(struct libinput_device *libinput_device,
+ 		    struct libinput_event_pointer *pointer_event)
+@@ -137,8 +175,7 @@ handle_pointer_axis(struct libinput_device *libinput_device,
+ 
+ 	axis = LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL;
+ 	if (libinput_event_pointer_has_axis(pointer_event, axis)) {
+-		value = libinput_event_pointer_get_axis_value(pointer_event,
+-							      axis);
++		value = normalize_scroll(pointer_event, axis);
+ 		notify_axis(device->seat,
+ 			    libinput_event_pointer_get_time(pointer_event),
+ 			    WL_POINTER_AXIS_VERTICAL_SCROLL,
+@@ -147,8 +184,7 @@ handle_pointer_axis(struct libinput_device *libinput_device,
+ 
+ 	axis = LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL;
+ 	if (libinput_event_pointer_has_axis(pointer_event, axis)) {
+-		value = libinput_event_pointer_get_axis_value(pointer_event,
+-							      axis);
++		value = normalize_scroll(pointer_event, axis);
+ 		notify_axis(device->seat,
+ 			    libinput_event_pointer_get_time(pointer_event),
+ 			    WL_POINTER_AXIS_HORIZONTAL_SCROLL,
+-- 
+cgit v0.10.2
+
+--- weston-1.6.1/configure.ac~	2015-01-23 22:14:10.000000000 +0100
++++ weston-1.6.1/configure.ac	2015-02-01 15:11:40.242544080 +0100
+@@ -160,7 +160,7 @@
+ AM_CONDITIONAL([ENABLE_LIBINPUT_BACKEND], [test x$enable_libinput_backend = xyes])
+ if test x$enable_libinput_backend = xyes; then
+   AC_DEFINE([BUILD_LIBINPUT_BACKEND], [1], [Build the libinput input device backend])
+-  PKG_CHECK_MODULES(LIBINPUT_BACKEND, [libinput >= 0.6.0 libinput < 0.8.0])
++  PKG_CHECK_MODULES(LIBINPUT_BACKEND, [libinput >= 0.8.0])
+ fi
+ 
+ 
