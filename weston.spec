@@ -27,6 +27,8 @@ BuildRequires:	Mesa-libEGL-devel >= 7.10
 BuildRequires:	Mesa-libGLES-devel
 # for wayland and sclients, but also desktop-shell, which is always enabled
 BuildRequires:	Mesa-libwayland-egl-devel >= 9.0-2
+BuildRequires:	autoconf >= 2.64
+BuildRequires:	automake >= 1:1.11
 BuildRequires:	cairo-devel >= 1.10.0
 BuildRequires:	colord-devel >= 0.1.27
 BuildRequires:	dbus-devel >= 1.6
@@ -35,6 +37,7 @@ BuildRequires:	lcms2-devel >= 2
 %{?with_libinput:BuildRequires:	libinput-devel >= 0.6.0}
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
+BuildRequires:	libtool >= 2:2.2
 BuildRequires:	libunwind-devel
 BuildRequires:	libwebp-devel
 BuildRequires:	pixman-devel >= 0.26
@@ -132,7 +135,11 @@ Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 %patch0 -p1
 
 %build
+%{__libtoolize}
+%{__aclocal} -I m4
 %{__autoconf}
+%{__autoheader}
+%{__automake}
 %configure \
 	%{!?with_clients:--disable-clients} \
 	%{!?with_drm:--disable-drm-compositor} \
