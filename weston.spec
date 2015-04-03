@@ -5,17 +5,22 @@
 %bcond_without	wayland		# wayland (nested) compositor
 %bcond_without	x11		# X11 compositor
 %bcond_without	libinput	# libinput backend
+%bcond_without	libunwind	# libunwind usage for backtraces
 %bcond_without	vaapi		# vaapi recorder
 %bcond_without	wlaunch		# weston launch
 %bcond_without	xwayland	# X server launcher
 %bcond_without	sclients	# simple clients
 %bcond_without	clients		# non-simple + full GL clients
-#
+
+%ifarch x32
+%undefine	with_libunwind
+%endif
+
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
 Version:	1.7.0
-Release:	1
+Release:	2
 License:	MIT
 Group:		Applications
 Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
@@ -37,7 +42,7 @@ BuildRequires:	lcms2-devel >= 2
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
 BuildRequires:	libtool >= 2:2.2
-BuildRequires:	libunwind-devel
+%{?with_libunwind:BuildRequires:	libunwind-devel}
 BuildRequires:	libwebp-devel
 BuildRequires:	pixman-devel >= 0.26
 BuildRequires:	pkgconfig
@@ -142,6 +147,7 @@ Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 	%{!?with_clients:--disable-clients} \
 	%{!?with_drm:--disable-drm-compositor} \
 	%{?with_libinput:--enable-libinput-backend} \
+	%{!?with_libunwind:--disable-libunwind} \
 	%{?with_rdp:--enable-rdp-compositor} \
 	%{!?with_sclients:--disable-simple-clients} \
 	--disable-setuid-install \
