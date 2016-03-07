@@ -19,13 +19,13 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	1.9.0
-Release:	2
+Version:	1.10.0
+Release:	1
 License:	MIT
 Group:		Applications
-Source0:	http://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	66bbba12f546570b4d97f676bc79a28e
-URL:		http://wayland.freedesktop.org/
+Source0:	https://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
+# Source0-md5:	1cd17c54ecac6d9a3cd90bf12eaa3e20
+URL:		https://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
 BuildRequires:	Mesa-libGLES-devel
@@ -48,7 +48,8 @@ BuildRequires:	pixman-devel >= 0.26
 BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
 # wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
-BuildRequires:	wayland-devel >= 1.9.0
+BuildRequires:	wayland-devel >= 1.10.0
+BuildRequires:	wayland-protocols >= 1.0
 BuildRequires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 BuildRequires:	xz
 %if %{with drm}
@@ -102,7 +103,7 @@ Requires:	libva-drm >= 1.2.0
 Requires:	pixman >= 0.26
 %{?with_wlaunch:Requires:	systemd-libs >= 1:209}
 %{?with_drm:Requires:	udev-libs >= 1:136}
-Requires:	wayland >= 1.9.0
+Requires:	wayland >= 1.10.0
 Requires:	xorg-lib-libxkbcommon >= 0.3.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -126,7 +127,7 @@ Requires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
 Requires:	Mesa-libGLES-devel
 Requires:	pixman-devel >= 0.26
-Requires:	wayland-devel >= 1.9.0
+Requires:	wayland-devel >= 1.10.0
 Requires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 
 %description devel
