@@ -19,12 +19,12 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	1.10.0
+Version:	1.11.0
 Release:	1
 License:	MIT
 Group:		Applications
 Source0:	https://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	1cd17c54ecac6d9a3cd90bf12eaa3e20
+# Source0-md5:	bc6f90a2039163804aecfa663b69c4c2
 URL:		https://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
@@ -36,6 +36,7 @@ BuildRequires:	automake >= 1:1.11
 BuildRequires:	cairo-devel >= 1.10.0
 BuildRequires:	colord-devel >= 0.1.27
 BuildRequires:	dbus-devel >= 1.6
+BuildRequires:	doxygen
 %{?with_rdp:BuildRequires:	freerdp-devel >= 1.1.0}
 BuildRequires:	lcms2-devel >= 2
 %{?with_libinput:BuildRequires:	libinput-devel >= 0.8.0}
@@ -49,7 +50,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
 # wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
 BuildRequires:	wayland-devel >= 1.10.0
-BuildRequires:	wayland-protocols >= 1.0
+BuildRequires:	wayland-protocols >= 1.2
 BuildRequires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 BuildRequires:	xz
 %if %{with drm}
