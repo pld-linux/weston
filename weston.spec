@@ -1,7 +1,7 @@
 #
 # Conditional build:
 %bcond_without	drm		# DRM compositor
-%bcond_with	rdp		# RDP compositor (needs freerdp 1.1.0)
+%bcond_without	rdp		# RDP compositor (needs freerdp2 or freerdp >= 1.1.0)
 %bcond_without	wayland		# wayland (nested) compositor
 %bcond_without	x11		# X11 compositor
 %bcond_without	libinput	# libinput backend
@@ -37,7 +37,8 @@ BuildRequires:	cairo-devel >= 1.10.0
 BuildRequires:	colord-devel >= 0.1.27
 BuildRequires:	dbus-devel >= 1.6
 BuildRequires:	doxygen
-%{?with_rdp:BuildRequires:	freerdp-devel >= 1.1.0}
+# or freerdp >= 1.1.0
+%{?with_rdp:BuildRequires:	freerdp2-devel >= 2.0}
 BuildRequires:	lcms2-devel >= 2
 %{?with_libinput:BuildRequires:	libinput-devel >= 0.8.0}
 BuildRequires:	libjpeg-devel
@@ -93,7 +94,7 @@ Requires:	cairo >= %{?with_clients:1.11.3}%{!?with_clients:1.10.0}
 Requires:	colord-libs >= 0.1.27
 Requires:	dbus-libs >= 1.6
 %{?with_drm:Requires:	Mesa-libgbm >= 10.2}
-%{?with_rdp:Requires:	freerdp >= 1.1.0}
+%{?with_rdp:Requires:	freerdp2 >= 2.0}
 %{?with_drm:Requires:	libdrm >= 2.4.30}
 %{?with_libinput:Requires:	libinput >= 0.8.0}
 %if %{with vaapi}
