@@ -10,7 +10,7 @@
 %bcond_without	wlaunch		# weston launch
 %bcond_without	xwayland	# X server launcher
 %bcond_without	sclients	# simple clients
-%bcond_without	clients		# non-simple + full GL clients
+%bcond_with	clients		# non-simple + full GL clients [require cairo-gl/cairo-egl]
 
 %ifarch x32
 %undefine	with_libunwind
@@ -20,7 +20,7 @@ Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
 Version:	1.11.0
-Release:	1
+Release:	2
 License:	MIT
 Group:		Applications
 Source0:	https://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
