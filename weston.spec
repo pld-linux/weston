@@ -4,13 +4,13 @@
 %bcond_without	rdp		# RDP compositor (needs freerdp2 or freerdp >= 1.1.0)
 %bcond_without	wayland		# wayland (nested) compositor
 %bcond_without	x11		# X11 compositor
-%bcond_without	libinput	# libinput backend
 %bcond_without	libunwind	# libunwind usage for backtraces
 %bcond_without	vaapi		# vaapi recorder
 %bcond_without	wlaunch		# weston launch
 %bcond_without	xwayland	# X server launcher
 %bcond_without	sclients	# simple clients
-%bcond_with	clients		# non-simple + full GL clients [require cairo-gl/cairo-egl]
+%bcond_without	clients		# non-simple clients
+%bcond_with	glclients	# full GL clients [require cairo-gl/cairo-egl]
 
 %ifarch x32
 %undefine	with_libunwind
@@ -40,7 +40,7 @@ BuildRequires:	doxygen
 # or freerdp >= 1.1.0
 %{?with_rdp:BuildRequires:	freerdp2-devel >= 2.0}
 BuildRequires:	lcms2-devel >= 2
-%{?with_libinput:BuildRequires:	libinput-devel >= 0.8.0}
+BuildRequires:	libinput-devel >= 0.8.0
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
 BuildRequires:	libtool >= 2:2.2
@@ -85,8 +85,10 @@ BuildRequires:	xorg-lib-libXcursor-devel
 %if %{with clients}
 BuildRequires:	OpenGL-GLU-devel
 BuildRequires:	cairo-devel >= 1.11.3
+%if %{with glclients}
 BuildRequires:	pkgconfig(cairo-egl) >= 1.11.3
 BuildRequires:	pkgconfig(cairo-gl)
+%endif
 %endif
 Requires:	Mesa-libEGL >= 7.10
 Requires:	Mesa-libwayland-egl >= 9.0-2
@@ -96,7 +98,7 @@ Requires:	dbus-libs >= 1.6
 %{?with_drm:Requires:	Mesa-libgbm >= 10.2}
 %{?with_rdp:Requires:	freerdp2 >= 2.0}
 %{?with_drm:Requires:	libdrm >= 2.4.30}
-%{?with_libinput:Requires:	libinput >= 0.8.0}
+Requires:	libinput >= 0.8.0
 %if %{with vaapi}
 Requires:	libva >= 1.2.0
 Requires:	libva-drm >= 1.2.0
@@ -150,7 +152,6 @@ Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 %configure \
 	%{!?with_clients:--disable-clients} \
 	%{!?with_drm:--disable-drm-compositor} \
-	%{?with_libinput:--enable-libinput-backend} \
 	%{!?with_libunwind:--disable-libunwind} \
 	%{?with_rdp:--enable-rdp-compositor} \
 	%{!?with_sclients:--disable-simple-clients} \
@@ -160,7 +161,7 @@ Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 	%{!?with_wlaunch:--disable-weston-launch} \
 	%{!?with_x11:--disable-x11-compositor} \
 	%{!?with_xwayland:--disable-xwayland} \
-	%{?with_clients:--with-cairo=gl}
+	%{?with_glclients:--with-cairo=gl}
 %{__make}
 
 %install
@@ -178,19 +179,19 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc README
 %attr(755,root,root) %{_bindir}/wcap-decode
-%attr(755,root,root) %{_bindir}/weston-info
 # composer
 %attr(755,root,root) %{_bindir}/weston
 %if %{with wlaunch}
 %attr(755,root,root) %{_bindir}/weston-launch
 %endif
 %if %{with clients}
+%attr(755,root,root) %{_bindir}/weston-info
 %attr(755,root,root) %{_bindir}/weston-terminal
 %attr(755,root,root) %{_libexecdir}/weston-desktop-shell
 %attr(755,root,root) %{_libexecdir}/weston-keyboard
 %attr(755,root,root) %{_libexecdir}/weston-screenshooter
-%endif
 %attr(755,root,root) %{_libexecdir}/weston-simple-im
+%endif
 %dir %{_libdir}/weston
 %attr(755,root,root) %{_libdir}/weston/cms-colord.so
 %attr(755,root,root) %{_libdir}/weston/cms-static.so
@@ -215,7 +216,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/weston/desktop-shell.so
 %attr(755,root,root) %{_libdir}/weston/fullscreen-shell.so
 # ivi shell
+%if %{with clients}
 %attr(755,root,root) %{_libexecdir}/weston-ivi-shell-user-interface
+%endif
 %attr(755,root,root) %{_libdir}/weston/hmi-controller.so
 %attr(755,root,root) %{_libdir}/weston/ivi-shell.so
 %{_datadir}/weston
@@ -246,8 +249,10 @@ rm -rf $RPM_BUILD_ROOT
 #%attr(755,root,root) %{_bindir}/weston-smoke
 #%attr(755,root,root) %{_bindir}/weston-stacking
 #%attr(755,root,root) %{_bindir}/weston-transformed
+%if %{with glclients}
 # "full GL" clients
 #%attr(755,root,root) %{_bindir}/weston-gears
+%endif
 %endif
 
 %files devel
