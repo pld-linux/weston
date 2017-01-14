@@ -1,0 +1,18 @@
+--- weston-1.12.0/libweston/compositor-rdp.c.orig	2016-09-17 09:06:45.000000000 +0200
++++ weston-1.12.0/libweston/compositor-rdp.c	2017-01-14 18:14:23.158407043 +0100
+@@ -618,13 +618,13 @@
+ 	context->rfx_context->mode = RLGR3;
+ 	context->rfx_context->width = client->settings->DesktopWidth;
+ 	context->rfx_context->height = client->settings->DesktopHeight;
+-	rfx_context_set_pixel_format(context->rfx_context, RDP_PIXEL_FORMAT_B8G8R8A8);
++	rfx_context_set_pixel_format(context->rfx_context, PIXEL_FORMAT_BGRA32);
+ 
+ 	context->nsc_context = nsc_context_new();
+ 	if (!context->nsc_context)
+ 		goto out_error_nsc;
+ 
+-	nsc_context_set_pixel_format(context->nsc_context, RDP_PIXEL_FORMAT_B8G8R8A8);
++	nsc_context_set_pixel_format(context->nsc_context, PIXEL_FORMAT_BGRA32);
+ 
+ 	context->encode_stream = Stream_New(NULL, 65536);
+ 	if (!context->encode_stream)

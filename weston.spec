@@ -19,12 +19,13 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	1.11.0
-Release:	3
+Version:	1.12.0
+Release:	1
 License:	MIT
 Group:		Applications
 Source0:	https://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	bc6f90a2039163804aecfa663b69c4c2
+# Source0-md5:	310af6d7f8ba03c3418cec8ad72ea748
+Patch0:		%{name}-freerdp2.patch
 URL:		https://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
@@ -50,8 +51,8 @@ BuildRequires:	pixman-devel >= 0.26
 BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
 # wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
-BuildRequires:	wayland-devel >= 1.10.0
-BuildRequires:	wayland-protocols >= 1.2
+BuildRequires:	wayland-devel >= 1.12.0
+BuildRequires:	wayland-protocols >= 1.7
 BuildRequires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 BuildRequires:	xz
 %if %{with drm}
@@ -90,25 +91,11 @@ BuildRequires:	pkgconfig(cairo-egl) >= 1.11.3
 BuildRequires:	pkgconfig(cairo-gl)
 %endif
 %endif
-Requires:	Mesa-libEGL >= 7.10
-Requires:	Mesa-libwayland-egl >= 9.0-2
-Requires:	cairo >= %{?with_clients:1.11.3}%{!?with_clients:1.10.0}
-Requires:	colord-libs >= 0.1.27
-Requires:	dbus-libs >= 1.6
-%{?with_drm:Requires:	Mesa-libgbm >= 10.2}
-%{?with_rdp:Requires:	freerdp2 >= 2.0}
-%{?with_drm:Requires:	libdrm >= 2.4.30}
-Requires:	libinput >= 0.8.0
-%if %{with vaapi}
-Requires:	libva >= 1.2.0
-Requires:	libva-drm >= 1.2.0
+Requires:	%{name}-libs = %{version}-%{release}
+%if %{with clients}
+Requires:	cairo >= 1.11.3
 %endif
-%{?with_drm:Requires:	mtdev >= 1.1.0}
-Requires:	pixman >= 0.26
-%{?with_wlaunch:Requires:	systemd-libs >= 1:209}
-%{?with_drm:Requires:	udev-libs >= 1:136}
-Requires:	wayland >= 1.10.0
-Requires:	xorg-lib-libxkbcommon >= 0.3.0
+Requires:	colord-libs >= 0.1.27
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -127,12 +114,10 @@ programy klienckie demonstrujące różne aspekty protokołu Wayland.
 Summary:	Header files for Weston plugin development
 Summary(pl.UTF-8):	Pliki nagłówkowe do tworzenia wtyczek dla Westona
 Group:		Development/Libraries
+Requires:	%{name}-libs-devel = %{version}-%{release}
 Requires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
 Requires:	Mesa-libGLES-devel
-Requires:	pixman-devel >= 0.26
-Requires:	wayland-devel >= 1.10.0
-Requires:	xorg-lib-libxkbcommon-devel >= 0.3.0
 
 %description devel
 Header files for Weston plugin development.
@@ -140,8 +125,68 @@ Header files for Weston plugin development.
 %description devel -l pl.UTF-8
 Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 
+%package libs
+Summary:	Weston compositor libraries
+Summary(pl.UTF-8):	Biblioteki serwera składania Weston
+Group:		Libraries
+Requires:	wayland >= 1.12.0
+Requires:	pixman >= 0.26
+Requires:	xorg-lib-libxkbcommon >= 0.3.0
+# the rest is for modules:
+Requires:	Mesa-libEGL >= 7.10
+%{?with_drm:Requires:	Mesa-libgbm >= 10.2}
+Requires:	Mesa-libwayland-egl >= 9.0-2
+Requires:	cairo >= 1.10.0
+Requires:	dbus-libs >= 1.6
+%{?with_drm:Requires:	libdrm >= 2.4.30}
+Requires:	libinput >= 0.8.0
+%if %{with vaapi}
+Requires:	libva >= 1.2.0
+Requires:	libva-drm >= 1.2.0
+%endif
+%{?with_drm:Requires:	mtdev >= 1.1.0}
+%{?with_wlaunch:Requires:	systemd-libs >= 1:209}
+%{?with_drm:Requires:	udev-libs >= 1:136}
+
+%description libs
+Weston compositor libraries.
+
+%description libs -l pl.UTF-8
+Biblioteki serwera składania Weston.
+
+%package libs-devel
+Summary:	Header files for libweston compositors development
+Summary(pl.UTF-8):	Pliki nagłówkowe do rozwijania modułów składających biblioteki libweston
+Group:		Development/Libraries
+Requires:	%{name}-libs = %{version}-%{release}
+Requires:	pixman-devel >= 0.26 
+# wayland-server
+Requires:	wayland-devel >= 1.12.0
+Requires:	xorg-lib-libxkbcommon-devel >= 0.3.0
+
+%description libs-devel
+Header files for libweston compositors development.
+
+%description libs-devel -l pl.UTF-8
+Pliki nagłówkowe do rozwijania modułów składających biblioteki
+libweston.
+
+%package compositor-rdp
+Summary:	RDP compositor plugin for Weston
+Summary(pl.UTF-8):	Wtyczka składająca RDP dla Westona
+Group:		Libraries
+Requires:	%{name} = %{version}-%{release}
+Requires:	freerdp2 >= 2.0
+
+%description compositor-rdp
+RDP compositor plugin for Weston.
+
+%description compositor-rdp -l pl.UTF-8
+Wtyczka składająca RDP dla Westona.
+
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %{__libtoolize}
@@ -170,10 +215,15 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/weston/*.la
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/libweston-*.la
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/libweston-1/*.la \
+	$RPM_BUILD_ROOT%{_libdir}/weston/*.la
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%post	libs -p /sbin/ldconfig
+%postun	libs -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
@@ -195,24 +245,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/weston
 %attr(755,root,root) %{_libdir}/weston/cms-colord.so
 %attr(755,root,root) %{_libdir}/weston/cms-static.so
-%if %{with drm}
-%attr(755,root,root) %{_libdir}/weston/drm-backend.so
-%endif
-%attr(755,root,root) %{_libdir}/weston/fbdev-backend.so
-%attr(755,root,root) %{_libdir}/weston/gl-renderer.so
-%attr(755,root,root) %{_libdir}/weston/headless-backend.so
-%if %{with rdp}
-%attr(755,root,root) %{_libdir}/weston/rdp-backend.so
-%endif
-%if %{with wayland}
-%attr(755,root,root) %{_libdir}/weston/wayland-backend.so
-%endif
-%if %{with x11}
-%attr(755,root,root) %{_libdir}/weston/x11-backend.so
-%endif
-%if %{with xwayland}
-%attr(755,root,root) %{_libdir}/weston/xwayland.so
-%endif
 %attr(755,root,root) %{_libdir}/weston/desktop-shell.so
 %attr(755,root,root) %{_libdir}/weston/fullscreen-shell.so
 # ivi shell
@@ -259,3 +291,40 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_includedir}/weston
 %{_pkgconfigdir}/weston.pc
+
+%files libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libweston-1.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libweston-1.so.0
+%attr(755,root,root) %{_libdir}/libweston-desktop-1.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libweston-desktop-1.so.0
+%dir %{_libdir}/libweston-1
+%if %{with drm}
+%attr(755,root,root) %{_libdir}/libweston-1/drm-backend.so
+%endif
+%attr(755,root,root) %{_libdir}/libweston-1/fbdev-backend.so
+%attr(755,root,root) %{_libdir}/libweston-1/gl-renderer.so
+%attr(755,root,root) %{_libdir}/libweston-1/headless-backend.so
+%if %{with wayland}
+%attr(755,root,root) %{_libdir}/libweston-1/wayland-backend.so
+%endif
+%if %{with x11}
+%attr(755,root,root) %{_libdir}/libweston-1/x11-backend.so
+%endif
+%if %{with xwayland}
+%attr(755,root,root) %{_libdir}/libweston-1/xwayland.so
+%endif
+
+%files libs-devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libweston-1.so
+%attr(755,root,root) %{_libdir}/libweston-desktop-1.so
+%{_includedir}/libweston-1
+%{_pkgconfigdir}/libweston-1.pc
+%{_pkgconfigdir}/libweston-desktop-1.pc
+
+%if %{with rdp}
+%files compositor-rdp
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libweston-1/rdp-backend.so
+%endif
