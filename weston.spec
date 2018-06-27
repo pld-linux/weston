@@ -10,17 +10,18 @@
 %bcond_without	xwayland	# X server launcher
 %bcond_without	sclients	# simple clients
 %bcond_without	clients		# non-simple clients
-%bcond_with	glclients	# full GL clients [require cairo-gl/cairo-egl]
+%bcond_with	glclients	# full GL clients [require cairo-gl/cairo-egl, not recommended]
 
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	3.0.0
+Version:	4.0.0
 Release:	1
 License:	MIT
 Group:		Applications
+#Source0Download: https://wayland.freedesktop.org/releases.html
 Source0:	https://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	9c42a4c51a1b9f35d040fa9d45ada36d
+# Source0-md5:	33709aa4d5916f89643fca0fc0064b39
 URL:		https://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
@@ -47,12 +48,12 @@ BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
 # wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
 BuildRequires:	wayland-devel >= 1.12.0
-BuildRequires:	wayland-protocols >= 1.8
+BuildRequires:	wayland-protocols >= 1.13
 BuildRequires:	xorg-lib-libxkbcommon-devel >= 0.5.0
 BuildRequires:	xz
 %if %{with drm}
 BuildRequires:	Mesa-libgbm-devel >= 10.2
-BuildRequires:	libdrm-devel >= 2.4.30
+BuildRequires:	libdrm-devel >= 2.4.78
 BuildRequires:	mtdev-devel >= 1.1.0
 BuildRequires:	udev-devel >= 1:136
 %endif
@@ -64,7 +65,8 @@ BuildRequires:	pkgconfig(libva) >= 0.34.0
 BuildRequires:	pkgconfig(libva-drm) >= 0.34.0
 %endif
 %if %{with x11}
-BuildRequires:	libxcb-devel >= 1.8
+# xcb >= 1.8 xcb-xkb >= 1.9 xcb-shm
+BuildRequires:	libxcb-devel >= 1.9
 BuildRequires:	xorg-lib-libX11-devel
 %endif
 %if %{with wlaunch}
@@ -135,13 +137,13 @@ Requires:	Mesa-libEGL >= 7.10
 Requires:	Mesa-libwayland-egl >= 9.0-2
 Requires:	cairo >= 1.10.0
 Requires:	dbus-libs >= 1.6
-%{?with_drm:Requires:	libdrm >= 2.4.30}
+%{?with_drm:Requires:	libdrm >= 2.4.78}
 Requires:	libinput >= 0.8.0
 %if %{with vaapi}
 Requires:	libva >= 1.2.0
 Requires:	libva-drm >= 1.2.0
 %endif
-%{?with_x11:Requires:	libxcb >= 1.8}
+%{?with_x11:Requires:	libxcb >= 1.9}
 %{?with_drm:Requires:	mtdev >= 1.1.0}
 %{?with_wlaunch:Requires:	systemd-libs >= 1:209}
 %{?with_drm:Requires:	udev-libs >= 1:136}
@@ -213,7 +215,7 @@ rm -rf $RPM_BUILD_ROOT
 	DESTDIR=$RPM_BUILD_ROOT
 
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libweston-*.la
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/libweston-3/*.la \
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/libweston-4/*.la \
 	$RPM_BUILD_ROOT%{_libdir}/weston/*.la
 
 %clean
@@ -291,37 +293,38 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-3.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libweston-3.so.0
-%attr(755,root,root) %{_libdir}/libweston-desktop-3.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libweston-desktop-3.so.0
-%dir %{_libdir}/libweston-3
+%attr(755,root,root) %{_libdir}/libweston-4.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libweston-4.so.0
+%attr(755,root,root) %{_libdir}/libweston-desktop-4.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libweston-desktop-4.so.0
+%dir %{_libdir}/libweston-4
 %if %{with drm}
-%attr(755,root,root) %{_libdir}/libweston-3/drm-backend.so
+%attr(755,root,root) %{_libdir}/libweston-4/drm-backend.so
 %endif
-%attr(755,root,root) %{_libdir}/libweston-3/fbdev-backend.so
-%attr(755,root,root) %{_libdir}/libweston-3/gl-renderer.so
-%attr(755,root,root) %{_libdir}/libweston-3/headless-backend.so
+%attr(755,root,root) %{_libdir}/libweston-4/fbdev-backend.so
+%attr(755,root,root) %{_libdir}/libweston-4/gl-renderer.so
+%attr(755,root,root) %{_libdir}/libweston-4/headless-backend.so
 %if %{with wayland}
-%attr(755,root,root) %{_libdir}/libweston-3/wayland-backend.so
+%attr(755,root,root) %{_libdir}/libweston-4/wayland-backend.so
 %endif
 %if %{with x11}
-%attr(755,root,root) %{_libdir}/libweston-3/x11-backend.so
+%attr(755,root,root) %{_libdir}/libweston-4/x11-backend.so
 %endif
 %if %{with xwayland}
-%attr(755,root,root) %{_libdir}/libweston-3/xwayland.so
+%attr(755,root,root) %{_libdir}/libweston-4/xwayland.so
 %endif
 
 %files libs-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-3.so
-%attr(755,root,root) %{_libdir}/libweston-desktop-3.so
-%{_includedir}/libweston-3
-%{_pkgconfigdir}/libweston-3.pc
-%{_pkgconfigdir}/libweston-desktop-3.pc
+%attr(755,root,root) %{_libdir}/libweston-4.so
+%attr(755,root,root) %{_libdir}/libweston-desktop-4.so
+%{_includedir}/libweston-4
+%{_pkgconfigdir}/libweston-4.pc
+%{_pkgconfigdir}/libweston-desktop-4.pc
 
 %if %{with rdp}
 %files compositor-rdp
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-3/rdp-backend.so
+%attr(755,root,root) %{_libdir}/libweston-4/rdp-backend.so
+%{_mandir}/man7/weston-rdp.7*
 %endif
