@@ -134,7 +134,6 @@ Requires:	xorg-lib-libxkbcommon >= 0.5.0
 # the rest is for modules:
 Requires:	Mesa-libEGL >= 7.10
 %{?with_drm:Requires:	Mesa-libgbm >= 17.2}
-Requires:	Mesa-libwayland-egl >= 9.0-2
 Requires:	cairo >= 1.10.0
 Requires:	dbus-libs >= 1.6
 %if %{with drm}
@@ -151,6 +150,7 @@ Requires:	libva-drm >= 1.2.0
 %{?with_drm:Requires:	mtdev >= 1.1.0}
 %{?with_wlaunch:Requires:	systemd-libs >= 1:209}
 %{?with_drm:Requires:	udev-libs >= 1:136}
+Requires:	wayland-egl >= 9.0-2
 
 %description libs
 Weston compositor libraries.
