@@ -16,12 +16,13 @@ Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
 Version:	5.0.0
-Release:	1
+Release:	2
 License:	MIT
 Group:		Applications
 #Source0Download: https://wayland.freedesktop.org/releases.html
 Source0:	https://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
 # Source0-md5:	752a04ce3c65af4884cfac4e57231bdb
+Patch0:		%{name}-freerdp2.patch
 URL:		https://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
@@ -32,8 +33,8 @@ BuildRequires:	cairo-devel >= 1.10.0
 BuildRequires:	colord-devel >= 0.1.27
 BuildRequires:	dbus-devel >= 1.6
 BuildRequires:	doxygen
-# or freerdp >= 1.1.0
-%{?with_rdp:BuildRequires:	freerdp2-devel >= 2.0.0}
+# or freerdp >= 1.1.0 (without freerdp2 patch)
+%{?with_rdp:BuildRequires:	freerdp2-devel >= 2.0.0-0.20180809.1}
 BuildRequires:	lcms2-devel >= 2
 BuildRequires:	libdrm-devel >= 2.4.68
 BuildRequires:	libinput-devel >= 0.8.0
@@ -180,7 +181,7 @@ Summary:	RDP compositor plugin for Weston
 Summary(pl.UTF-8):	Wtyczka składająca RDP dla Westona
 Group:		Libraries
 Requires:	%{name} = %{version}-%{release}
-Requires:	freerdp2 >= 2.0.0
+Requires:	freerdp2 >= 2.0.0-0.20180809.1
 
 %description compositor-rdp
 RDP compositor plugin for Weston.
@@ -190,6 +191,7 @@ Wtyczka składająca RDP dla Westona.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %{__libtoolize}
