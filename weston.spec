@@ -16,7 +16,7 @@ Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
 Version:	5.0.0
-Release:	2
+Release:	3
 License:	MIT
 Group:		Applications
 #Source0Download: https://wayland.freedesktop.org/releases.html
@@ -151,7 +151,7 @@ Requires:	libva-drm >= 1.2.0
 %{?with_drm:Requires:	mtdev >= 1.1.0}
 %{?with_wlaunch:Requires:	systemd-libs >= 1:209}
 %{?with_drm:Requires:	udev-libs >= 1:136}
-Requires:	wayland-egl >= 9.0-2
+Requires:	wayland-egl
 
 %description libs
 Weston compositor libraries.
