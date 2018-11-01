@@ -16,7 +16,7 @@ Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
 Version:	5.0.0
-Release:	4
+Release:	5
 License:	MIT
 Group:		Applications
 #Source0Download: https://wayland.freedesktop.org/releases.html
