@@ -1,117 +1,12 @@
---- weston-5.0.0/libweston/compositor-rdp.c.orig	2018-08-24 20:04:16.000000000 +0200
-+++ weston-5.0.0/libweston/compositor-rdp.c	2018-10-11 21:16:08.197352052 +0200
-@@ -86,6 +86,7 @@
- #include <freerdp/listener.h>
- #include <freerdp/update.h>
- #include <freerdp/input.h>
-+#include <freerdp/cache/cache.h>
- #include <freerdp/codec/color.h>
- #include <freerdp/codec/rfx.h>
- #include <freerdp/codec/nsc.h>
-@@ -198,8 +199,10 @@
- 	uint32_t *ptr;
- 	RFX_RECT *rfxRect;
- 	rdpUpdate *update = peer->update;
--	SURFACE_BITS_COMMAND *cmd = &update->surface_bits_command;
-+	SURFACE_BITS_COMMAND *cmd = calloc(1, sizeof(SURFACE_BITS_COMMAND));
- 	RdpPeerContext *context = (RdpPeerContext *)peer->context;
-+	if (!cmd)
-+		return;
- 
- 	Stream_Clear(context->encode_stream);
- 	Stream_SetPosition(context->encode_stream, 0);
-@@ -209,8 +212,6 @@
- 
- #ifdef HAVE_SKIP_COMPRESSION
- 	cmd->skipCompression = TRUE;
--#else
--	memset(cmd, 0, sizeof(*cmd));
- #endif
- 	cmd->destLeft = damage->extents.x1;
- 	cmd->destTop = damage->extents.y1;
-@@ -246,6 +247,8 @@
- 	SURFACE_BITMAP_DATA(cmd) = Stream_Buffer(context->encode_stream);
- 
- 	update->SurfaceBits(update->context, cmd);
-+
-+	free(cmd);
- }
- 
- 
-@@ -255,8 +258,10 @@
- 	int width, height;
- 	uint32_t *ptr;
- 	rdpUpdate *update = peer->update;
--	SURFACE_BITS_COMMAND *cmd = &update->surface_bits_command;
-+	SURFACE_BITS_COMMAND *cmd = calloc(1, sizeof(SURFACE_BITS_COMMAND));
- 	RdpPeerContext *context = (RdpPeerContext *)peer->context;
-+	if (!cmd)
-+		return;
- 
- 	Stream_Clear(context->encode_stream);
- 	Stream_SetPosition(context->encode_stream, 0);
-@@ -266,8 +271,6 @@
- 
- #ifdef HAVE_SKIP_COMPRESSION
- 	cmd->skipCompression = TRUE;
--#else
--	memset(cmd, 0, sizeof(*cmd));
- #endif
- 
- 	cmd->destLeft = damage->extents.x1;
-@@ -290,6 +293,8 @@
- 	SURFACE_BITMAP_DATA(cmd) = Stream_Buffer(context->encode_stream);
- 
- 	update->SurfaceBits(update->context, cmd);
-+
-+	free(cmd);
- }
- 
- static void
-@@ -310,15 +315,19 @@
- rdp_peer_refresh_raw(pixman_region32_t *region, pixman_image_t *image, freerdp_peer *peer)
- {
- 	rdpUpdate *update = peer->update;
--	SURFACE_BITS_COMMAND *cmd = &update->surface_bits_command;
--	SURFACE_FRAME_MARKER *marker = &update->surface_frame_marker;
-+	SURFACE_BITS_COMMAND *cmd = calloc(1, sizeof(SURFACE_BITS_COMMAND));
-+	if (!cmd)
-+		return;
-+	SURFACE_FRAME_MARKER *marker = calloc(1, sizeof(SURFACE_FRAME_MARKER));
-+	if (!marker)
-+		goto fail2;
- 	pixman_box32_t *rect, subrect;
- 	int nrects, i;
- 	int heightIncrement, remainingHeight, top;
- 
- 	rect = pixman_region32_rectangles(region, &nrects);
+--- weston-6.0.0/libweston/compositor-rdp.c.orig	2019-03-28 02:15:13.000000000 +0100
++++ weston-6.0.0/libweston/compositor-rdp.c	2019-04-22 10:01:34.149025872 +0200
+@@ -320,7 +320,8 @@
  	if (!nrects)
--		return;
-+		goto fail;
+ 		return;
  
- 	marker->frameId++;
- 	marker->frameAction = SURFACECMD_FRAMEACTION_BEGIN;
-@@ -362,6 +371,10 @@
+-	marker.frameId++;
++	memset(&marker, 0, sizeof(marker));
++	marker.frameId++; /* FIXME: always 1? */
+ 	marker.frameAction = SURFACECMD_FRAMEACTION_BEGIN;
+ 	update->SurfaceFrameMarker(peer->context, &marker);
  
- 	marker->frameAction = SURFACECMD_FRAMEACTION_END;
- 	update->SurfaceFrameMarker(peer->context, marker);
-+fail:
-+	free(marker);
-+fail2:
-+	free(cmd);
- }
- 
- static void
-@@ -1055,9 +1068,10 @@
- 	peersItem->flags |= RDP_PEER_ACTIVATED;
- 
- 	/* disable pointer on the client side */
-+	POINTER_SYSTEM_UPDATE pointer_system;
-+	pointer_system.type = SYSPTR_NULL;
- 	pointer = client->update->pointer;
--	pointer->pointer_system.type = SYSPTR_NULL;
--	pointer->PointerSystem(client->context, &pointer->pointer_system);
-+	pointer->PointerSystem(client->context, &pointer_system);
- 
- 	/* sends a full refresh */
- 	box.x1 = 0;
