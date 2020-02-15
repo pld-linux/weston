@@ -8,10 +8,11 @@
 %bcond_without	vaapi		# vaapi recorder
 %bcond_without	wlaunch		# weston launch
 %bcond_without	xwayland	# X server launcher
+%bcond_without	dclients	# demo clients
 %bcond_without	sclients	# simple clients
 %bcond_without	clients		# non-simple clients
-%bcond_with	glclients	# full GL clients [require cairo-gl/cairo-egl, not recommended]
 %bcond_without	remoting	# remoting-plugin (requires DRM compositor + GStreamer)
+%bcond_with	apidocs		# documentation (requires Sphinx 2.1+)
 
 %if %{without drm}
 %undefine	with_remoting
@@ -19,44 +20,46 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	6.0.0
+Version:	8.0.0
 Release:	1
 License:	MIT
 Group:		Applications
 #Source0Download: https://wayland.freedesktop.org/releases.html
 Source0:	https://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	7c634e262f8a464a076c97fd50ad36b3
+# Source0-md5:	53e4810d852df0601d01fd986a5b22b3
 Patch0:		%{name}-freerdp2.patch
 URL:		https://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
 BuildRequires:	Mesa-libGLES-devel
-BuildRequires:	autoconf >= 2.64
-BuildRequires:	automake >= 1:1.11
 BuildRequires:	cairo-devel >= 1.10.0
 BuildRequires:	colord-devel >= 0.1.27
 BuildRequires:	dbus-devel >= 1.6
 BuildRequires:	doxygen
 # or freerdp >= 1.1.0 (without freerdp2 patch)
 %{?with_rdp:BuildRequires:	freerdp2-devel >= 2.0.0-0.20180809.1}
+BuildRequires:	glib2-devel >= 1:2.36
 %if %{with remoting}
 BuildRequires:	gstreamer-devel >= 1.0
 BuildRequires:	gstreamer-plugins-base-devel >= 1.0
 %endif
 BuildRequires:	lcms2-devel >= 2
-BuildRequires:	libdrm-devel >= 2.4.68
+BuildRequires:	libdrm-devel >= 2.4.86
 BuildRequires:	libevdev-devel
 BuildRequires:	libinput-devel >= 0.8.0
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
-BuildRequires:	libtool >= 2:2.2
 %{?with_libunwind:BuildRequires:	libunwind-devel}
 BuildRequires:	libwebp-devel
+BuildRequires:	meson >= 0.47
+BuildRequires:	ninja >= 1.5
 BuildRequires:	pixman-devel >= 0.26
 BuildRequires:	pkgconfig
+BuildRequires:	rpmbuild(macros) >= 1.736
+BuildRequires:	systemd-devel >= 1:209
 BuildRequires:	tar >= 1:1.22
 # wayland-server always; wayland-client if with_wayland || with_sclients || with_clients; wayland-cursor if with_clients
-BuildRequires:	wayland-devel >= 1.12.0
+BuildRequires:	wayland-devel >= 1.17.0
 # for wayland and sclients, but also desktop-shell, which is always enabled
 BuildRequires:	wayland-egl-devel
 BuildRequires:	wayland-protocols >= 1.17
@@ -64,7 +67,6 @@ BuildRequires:	xorg-lib-libxkbcommon-devel >= 0.5.0
 BuildRequires:	xz
 %if %{with drm}
 BuildRequires:	Mesa-libgbm-devel >= 17.2
-BuildRequires:	libdrm-devel >= 2.4.83
 BuildRequires:	mtdev-devel >= 1.1.0
 BuildRequires:	udev-devel >= 1:136
 %endif
@@ -82,28 +84,20 @@ BuildRequires:	xorg-lib-libX11-devel
 %endif
 %if %{with wlaunch}
 BuildRequires:	pam-devel
-BuildRequires:	systemd-devel >= 1:209
 %endif
 %if %{with xwayland}
-BuildRequires:	glib2-devel >= 1:2.36
 # xcb xcb-composite xcb-xfixes
 BuildRequires:	libxcb-devel
 BuildRequires:	pango-devel >= 1:1.10
 BuildRequires:	pkgconfig(cairo-xcb)
 BuildRequires:	xorg-lib-libXcursor-devel
 %endif
-%if %{with clients}
-BuildRequires:	OpenGL-GLU-devel
-BuildRequires:	cairo-devel >= 1.11.3
-%if %{with glclients}
-BuildRequires:	pkgconfig(cairo-egl) >= 1.11.3
-BuildRequires:	pkgconfig(cairo-gl)
-%endif
+%if %{with apidocs}
+BuildRequires:	doxygen >= 1.8
+BuildRequires:	python3-breathe >= 4.11
+BuildRequires:	sphinx-pdg >= 2.1.0
 %endif
 Requires:	%{name}-libs = %{version}-%{release}
-%if %{with clients}
-Requires:	cairo >= 1.11.3
-%endif
 Requires:	colord-libs >= 0.1.27
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -138,7 +132,7 @@ Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 Summary:	Weston compositor libraries
 Summary(pl.UTF-8):	Biblioteki serwera składania Weston
 Group:		Libraries
-Requires:	wayland >= 1.12.0
+Requires:	wayland >= 1.17.0
 Requires:	pixman >= 0.26
 Requires:	xorg-lib-libxkbcommon >= 0.5.0
 # the rest is for modules:
@@ -146,11 +140,7 @@ Requires:	Mesa-libEGL >= 7.10
 %{?with_drm:Requires:	Mesa-libgbm >= 17.2}
 Requires:	cairo >= 1.10.0
 Requires:	dbus-libs >= 1.6
-%if %{with drm}
-Requires:	libdrm >= 2.4.83
-%else
-Requires:	libdrm >= 2.4.68
-%endif
+Requires:	libdrm >= 2.4.86
 Requires:	libinput >= 0.8.0
 %if %{with vaapi}
 Requires:	libva >= 1.2.0
@@ -175,7 +165,7 @@ Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	pixman-devel >= 0.26 
 # wayland-server
-Requires:	wayland-devel >= 1.12.0
+Requires:	wayland-devel >= 1.17.0
 Requires:	xorg-lib-libxkbcommon-devel >= 0.5.0
 
 %description libs-devel
@@ -203,37 +193,24 @@ Wtyczka składająca RDP dla Westona.
 %patch0 -p1
 
 %build
-%{__libtoolize}
-%{__aclocal} -I m4
-%{__autoconf}
-%{__autoheader}
-%{__automake}
-%configure \
-	--enable-autotools \
-	%{!?with_clients:--disable-clients} \
-	%{!?with_drm:--disable-drm-compositor} \
-	%{!?with_libunwind:--disable-libunwind} \
-	%{?with_rdp:--enable-rdp-compositor} \
-	%{?with_remoting:--enable-remoting} \
-	%{!?with_sclients:--disable-simple-clients} \
-	--disable-setuid-install \
-	--disable-silent-rules \
-	%{!?with_vaapi:--disable-vaapi-recorder} \
-	%{!?with_wlaunch:--disable-weston-launch} \
-	%{!?with_x11:--disable-x11-compositor} \
-	%{!?with_xwayland:--disable-xwayland} \
-	%{?with_glclients:--with-cairo=gl}
-%{__make}
+%meson build \
+	%{!?with_drm:-Dbackend-drm=false} \
+	%{!?with_vaapi:-Dbackend-drm-screencast-vaapi=false} \
+	%{!?with_rdp:-Dbackend-rdp=false} \
+	%{!?with_x11:-Dbackend-x11=false} \
+	%{!?with_dclients:-Ddemo-clients=""} \
+	%{?with_apidocs:-Ddoc=true} \
+	%{!?with_remoting:-Dremoting=false} \
+	%{!?with_sclients:-Dsimple-clients=""} \
+	%{!?with_wlaunch:-Dweston-launch=false} \
+	%{!?with_xwayland:-Dxwayland=false}
+
+%ninja_build -C build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
-
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/libweston-*.la
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/libweston-6/*.la \
-	$RPM_BUILD_ROOT%{_libdir}/weston/*.la
+%ninja_install -C build
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -247,63 +224,66 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/wcap-decode
 # composer
 %attr(755,root,root) %{_bindir}/weston
+%attr(755,root,root) %{_bindir}/weston-calibrator
+%attr(755,root,root) %{_bindir}/weston-debug
+%attr(755,root,root) %{_bindir}/weston-info
 %if %{with wlaunch}
 %attr(755,root,root) %{_bindir}/weston-launch
 %endif
-%if %{with clients}
-%attr(755,root,root) %{_bindir}/weston-debug
-%attr(755,root,root) %{_bindir}/weston-info
 %attr(755,root,root) %{_bindir}/weston-screenshooter
 %attr(755,root,root) %{_bindir}/weston-terminal
+%attr(755,root,root) %{_bindir}/weston-touch-calibrator
+%if %{with dclients}
+%attr(755,root,root) %{_bindir}/weston-clickdot
+%attr(755,root,root) %{_bindir}/weston-cliptest
+%attr(755,root,root) %{_bindir}/weston-confine
+%attr(755,root,root) %{_bindir}/weston-content_protection
+%attr(755,root,root) %{_bindir}/weston-dnd
+%attr(755,root,root) %{_bindir}/weston-editor
+%attr(755,root,root) %{_bindir}/weston-eventdemo
+%attr(755,root,root) %{_bindir}/weston-flower
+%attr(755,root,root) %{_bindir}/weston-fullscreen
+%attr(755,root,root) %{_bindir}/weston-image
+%attr(755,root,root) %{_bindir}/weston-multi-resource
+%attr(755,root,root) %{_bindir}/weston-presentation-shm
+%attr(755,root,root) %{_bindir}/weston-resizor
+%attr(755,root,root) %{_bindir}/weston-scaler
+%attr(755,root,root) %{_bindir}/weston-smoke
+%attr(755,root,root) %{_bindir}/weston-stacking
+%attr(755,root,root) %{_bindir}/weston-subsurfaces
+%attr(755,root,root) %{_bindir}/weston-transformed
+%endif
+%if %{with sclients}
+%attr(755,root,root) %{_bindir}/weston-simple-damage
+%attr(755,root,root) %{_bindir}/weston-simple-dmabuf-egl
+%attr(755,root,root) %{_bindir}/weston-simple-dmabuf-v4l
+%attr(755,root,root) %{_bindir}/weston-simple-egl
+%attr(755,root,root) %{_bindir}/weston-simple-shm
+%attr(755,root,root) %{_bindir}/weston-simple-touch
+%endif
 %attr(755,root,root) %{_libexecdir}/weston-desktop-shell
+%attr(755,root,root) %{_libexecdir}/weston-ivi-shell-user-interface
 %attr(755,root,root) %{_libexecdir}/weston-keyboard
 %attr(755,root,root) %{_libexecdir}/weston-simple-im
-%endif
 %dir %{_libdir}/weston
+%attr(755,root,root) %{_libdir}/weston/libexec_weston.so*
 %attr(755,root,root) %{_libdir}/weston/cms-colord.so
 %attr(755,root,root) %{_libdir}/weston/cms-static.so
 %attr(755,root,root) %{_libdir}/weston/desktop-shell.so
 %attr(755,root,root) %{_libdir}/weston/fullscreen-shell.so
-# ivi shell
-%if %{with clients}
-%attr(755,root,root) %{_libexecdir}/weston-ivi-shell-user-interface
-%endif
 %attr(755,root,root) %{_libdir}/weston/hmi-controller.so
 %attr(755,root,root) %{_libdir}/weston/ivi-shell.so
+%attr(755,root,root) %{_libdir}/weston/screen-share.so
+%attr(755,root,root) %{_libdir}/weston/systemd-notify.so
+%{_datadir}/libweston-8
 %{_datadir}/weston
 %dir %{_datadir}/wayland-sessions
 %{_datadir}/wayland-sessions/weston.desktop
 %{_mandir}/man1/weston.1*
 %{_mandir}/man1/weston-debug.1*
 %{_mandir}/man5/weston.ini.5*
+%{_mandir}/man7/weston-bindings.7*
 %{_mandir}/man7/weston-drm.7*
-
-# noinst by default - --enable-demo-clients and package in %{name}-demos?
-# "simple clients"
-#%attr(755,root,root) %{_bindir}/weston-multi-resource
-#%attr(755,root,root) %{_bindir}/weston-simple-egl
-#%attr(755,root,root) %{_bindir}/weston-simple-shm
-#%attr(755,root,root) %{_bindir}/weston-simple-touch
-%if %{with clients}
-#%attr(755,root,root) %{_bindir}/weston-calibrator
-#%attr(755,root,root) %{_bindir}/weston-clickdot
-#%attr(755,root,root) %{_bindir}/weston-cliptest
-#%attr(755,root,root) %{_bindir}/weston-dnd
-#%attr(755,root,root) %{_bindir}/weston-editor
-#%attr(755,root,root) %{_bindir}/weston-eventdemo
-#%attr(755,root,root) %{_bindir}/weston-flower
-#%attr(755,root,root) %{_bindir}/weston-fullscreen
-#%attr(755,root,root) %{_bindir}/weston-image
-#%attr(755,root,root) %{_bindir}/weston-resizor
-#%attr(755,root,root) %{_bindir}/weston-scaler
-#%attr(755,root,root) %{_bindir}/weston-smoke
-#%attr(755,root,root) %{_bindir}/weston-stacking
-#%attr(755,root,root) %{_bindir}/weston-transformed
-%if %{with glclients}
-# "full GL" clients
-#%attr(755,root,root) %{_bindir}/weston-gears
-%endif
-%endif
 
 %files devel
 %defattr(644,root,root,755)
@@ -312,42 +292,43 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-6.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libweston-6.so.0
-%attr(755,root,root) %{_libdir}/libweston-desktop-6.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libweston-desktop-6.so.0
-%dir %{_libdir}/libweston-6
+%attr(755,root,root) %{_libdir}/libweston-8.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libweston-8.so.0
+%attr(755,root,root) %{_libdir}/libweston-desktop-8.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libweston-desktop-8.so.0
+%dir %{_libdir}/libweston-8
 %if %{with drm}
-%attr(755,root,root) %{_libdir}/libweston-6/drm-backend.so
+%attr(755,root,root) %{_libdir}/libweston-8/drm-backend.so
 %endif
-%attr(755,root,root) %{_libdir}/libweston-6/fbdev-backend.so
-%attr(755,root,root) %{_libdir}/libweston-6/gl-renderer.so
-%attr(755,root,root) %{_libdir}/libweston-6/headless-backend.so
+%attr(755,root,root) %{_libdir}/libweston-8/fbdev-backend.so
+%attr(755,root,root) %{_libdir}/libweston-8/gl-renderer.so
+%attr(755,root,root) %{_libdir}/libweston-8/headless-backend.so
+%attr(755,root,root) %{_libdir}/libweston-8/pipewire-plugin.so
 %if %{with remoting}
-%attr(755,root,root) %{_libdir}/libweston-6/remoting-plugin.so
+%attr(755,root,root) %{_libdir}/libweston-8/remoting-plugin.so
 %endif
 %if %{with wayland}
-%attr(755,root,root) %{_libdir}/libweston-6/wayland-backend.so
+%attr(755,root,root) %{_libdir}/libweston-8/wayland-backend.so
 %endif
 %if %{with x11}
-%attr(755,root,root) %{_libdir}/libweston-6/x11-backend.so
+%attr(755,root,root) %{_libdir}/libweston-8/x11-backend.so
 %endif
 %if %{with xwayland}
-%attr(755,root,root) %{_libdir}/libweston-6/xwayland.so
+%attr(755,root,root) %{_libdir}/libweston-8/xwayland.so
 %endif
 
 %files libs-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-6.so
-%attr(755,root,root) %{_libdir}/libweston-desktop-6.so
-%{_includedir}/libweston-6
-%{_pkgconfigdir}/libweston-6.pc
-%{_pkgconfigdir}/libweston-desktop-6.pc
-%{_npkgconfigdir}/libweston-6-protocols.pc
+%attr(755,root,root) %{_libdir}/libweston-8.so
+%attr(755,root,root) %{_libdir}/libweston-desktop-8.so
+%{_includedir}/libweston-8
+%{_pkgconfigdir}/libweston-8.pc
+%{_pkgconfigdir}/libweston-desktop-8.pc
+%{_npkgconfigdir}/libweston-8-protocols.pc
 
 %if %{with rdp}
 %files compositor-rdp
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-6/rdp-backend.so
+%attr(755,root,root) %{_libdir}/libweston-8/rdp-backend.so
 %{_mandir}/man7/weston-rdp.7*
 %endif

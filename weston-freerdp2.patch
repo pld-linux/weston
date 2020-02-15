@@ -1,5 +1,5 @@
---- weston-6.0.0/libweston/compositor-rdp.c.orig	2019-03-28 02:15:13.000000000 +0100
-+++ weston-6.0.0/libweston/compositor-rdp.c	2019-04-22 10:01:34.149025872 +0200
+--- weston-8.0.0/libweston/backend-rdp/rdp.c.orig	2019-03-28 02:15:13.000000000 +0100
++++ weston-8.0.0/libweston/backend-rdp/rdp.c	2019-04-22 10:01:34.149025872 +0200
 @@ -320,7 +320,8 @@
  	if (!nrects)
  		return;
