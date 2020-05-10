@@ -12,6 +12,7 @@
 %bcond_without	sclients	# simple clients
 %bcond_without	clients		# non-simple clients
 %bcond_without	remoting	# remoting-plugin (requires DRM compositor + GStreamer)
+%bcond_with	pipewire	# pipewire plugin
 %bcond_with	apidocs		# documentation (requires Sphinx 2.1+)
 
 %if %{without drm}
@@ -21,7 +22,7 @@ Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
 Version:	8.0.0
-Release:	1
+Release:	2
 License:	MIT
 Group:		Applications
 #Source0Download: https://wayland.freedesktop.org/releases.html
@@ -53,6 +54,7 @@ BuildRequires:	libpng-devel
 BuildRequires:	libwebp-devel
 BuildRequires:	meson >= 0.47
 BuildRequires:	ninja >= 1.5
+%{?with_pipewire:BuildRequires:	pipewire-devel}
 BuildRequires:	pixman-devel >= 0.26
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.736
@@ -194,6 +196,7 @@ Wtyczka składająca RDP dla Westona.
 
 %build
 %meson build \
+	%{!?with_pipewire:-Dpipewire=false} \
 	%{!?with_drm:-Dbackend-drm=false} \
 	%{!?with_vaapi:-Dbackend-drm-screencast-vaapi=false} \
 	%{!?with_rdp:-Dbackend-rdp=false} \
@@ -303,7 +306,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libweston-8/fbdev-backend.so
 %attr(755,root,root) %{_libdir}/libweston-8/gl-renderer.so
 %attr(755,root,root) %{_libdir}/libweston-8/headless-backend.so
-%attr(755,root,root) %{_libdir}/libweston-8/pipewire-plugin.so
+%{?with_pipewire:%attr(755,root,root) %{_libdir}/libweston-8/pipewire-plugin.so}
 %if %{with remoting}
 %attr(755,root,root) %{_libdir}/libweston-8/remoting-plugin.so
 %endif
