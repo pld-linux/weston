@@ -21,13 +21,13 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	8.0.0
-Release:	2
+Version:	9.0.0
+Release:	1
 License:	MIT
 Group:		Applications
 #Source0Download: https://wayland.freedesktop.org/releases.html
 Source0:	https://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
-# Source0-md5:	53e4810d852df0601d01fd986a5b22b3
+# Source0-md5:	b406da0fe9139fd39653238fde22a6cf
 Patch0:		%{name}-freerdp2.patch
 URL:		https://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
@@ -54,7 +54,8 @@ BuildRequires:	libpng-devel
 BuildRequires:	libwebp-devel
 BuildRequires:	meson >= 0.47
 BuildRequires:	ninja >= 1.5
-%{?with_pipewire:BuildRequires:	pipewire-devel}
+%{?with_pipewire:BuildRequires:	pipewire-devel >= 0.2}
+%{?with_pipewire:BuildRequires:	pipewire-devel < 0.3}
 BuildRequires:	pixman-devel >= 0.26
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.736
@@ -64,7 +65,7 @@ BuildRequires:	tar >= 1:1.22
 BuildRequires:	wayland-devel >= 1.17.0
 # for wayland and sclients, but also desktop-shell, which is always enabled
 BuildRequires:	wayland-egl-devel
-BuildRequires:	wayland-protocols >= 1.17
+BuildRequires:	wayland-protocols >= 1.18
 BuildRequires:	xorg-lib-libxkbcommon-devel >= 0.5.0
 BuildRequires:	xz
 %if %{with drm}
@@ -276,9 +277,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/weston/fullscreen-shell.so
 %attr(755,root,root) %{_libdir}/weston/hmi-controller.so
 %attr(755,root,root) %{_libdir}/weston/ivi-shell.so
+%attr(755,root,root) %{_libdir}/weston/kiosk-shell.so
 %attr(755,root,root) %{_libdir}/weston/screen-share.so
 %attr(755,root,root) %{_libdir}/weston/systemd-notify.so
-%{_datadir}/libweston-8
+%{_datadir}/libweston-9
 %{_datadir}/weston
 %dir %{_datadir}/wayland-sessions
 %{_datadir}/wayland-sessions/weston.desktop
@@ -295,43 +297,43 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-8.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libweston-8.so.0
-%attr(755,root,root) %{_libdir}/libweston-desktop-8.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libweston-desktop-8.so.0
-%dir %{_libdir}/libweston-8
+%attr(755,root,root) %{_libdir}/libweston-9.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libweston-9.so.0
+%attr(755,root,root) %{_libdir}/libweston-desktop-9.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libweston-desktop-9.so.0
+%dir %{_libdir}/libweston-9
 %if %{with drm}
-%attr(755,root,root) %{_libdir}/libweston-8/drm-backend.so
+%attr(755,root,root) %{_libdir}/libweston-9/drm-backend.so
 %endif
-%attr(755,root,root) %{_libdir}/libweston-8/fbdev-backend.so
-%attr(755,root,root) %{_libdir}/libweston-8/gl-renderer.so
-%attr(755,root,root) %{_libdir}/libweston-8/headless-backend.so
-%{?with_pipewire:%attr(755,root,root) %{_libdir}/libweston-8/pipewire-plugin.so}
+%attr(755,root,root) %{_libdir}/libweston-9/fbdev-backend.so
+%attr(755,root,root) %{_libdir}/libweston-9/gl-renderer.so
+%attr(755,root,root) %{_libdir}/libweston-9/headless-backend.so
+%{?with_pipewire:%attr(755,root,root) %{_libdir}/libweston-9/pipewire-plugin.so}
 %if %{with remoting}
-%attr(755,root,root) %{_libdir}/libweston-8/remoting-plugin.so
+%attr(755,root,root) %{_libdir}/libweston-9/remoting-plugin.so
 %endif
 %if %{with wayland}
-%attr(755,root,root) %{_libdir}/libweston-8/wayland-backend.so
+%attr(755,root,root) %{_libdir}/libweston-9/wayland-backend.so
 %endif
 %if %{with x11}
-%attr(755,root,root) %{_libdir}/libweston-8/x11-backend.so
+%attr(755,root,root) %{_libdir}/libweston-9/x11-backend.so
 %endif
 %if %{with xwayland}
-%attr(755,root,root) %{_libdir}/libweston-8/xwayland.so
+%attr(755,root,root) %{_libdir}/libweston-9/xwayland.so
 %endif
 
 %files libs-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-8.so
-%attr(755,root,root) %{_libdir}/libweston-desktop-8.so
-%{_includedir}/libweston-8
-%{_pkgconfigdir}/libweston-8.pc
-%{_pkgconfigdir}/libweston-desktop-8.pc
-%{_npkgconfigdir}/libweston-8-protocols.pc
+%attr(755,root,root) %{_libdir}/libweston-9.so
+%attr(755,root,root) %{_libdir}/libweston-desktop-9.so
+%{_includedir}/libweston-9
+%{_pkgconfigdir}/libweston-9.pc
+%{_pkgconfigdir}/libweston-desktop-9.pc
+%{_npkgconfigdir}/libweston-9-protocols.pc
 
 %if %{with rdp}
 %files compositor-rdp
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-8/rdp-backend.so
+%attr(755,root,root) %{_libdir}/libweston-9/rdp-backend.so
 %{_mandir}/man7/weston-rdp.7*
 %endif
