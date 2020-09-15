@@ -1,0 +1,16 @@
+dataonly=true removes libdir _and prefix_ and prefix cannot be readded (as it's reserved variable),
+so use absolute datarootdir
+--- weston-9.0.0/libweston/meson.build.orig	2020-09-15 18:07:36.558978451 +0200
++++ weston-9.0.0/libweston/meson.build	2020-09-15 18:07:25.429038747 +0200
+@@ -134,9 +134,10 @@
+ 	version: version_weston,
+ 	description: 'libWeston protocol files',
+ 	variables: [
+-		'datarootdir=' + join_paths('${prefix}', get_option('datadir')),
++		'datarootdir=' + dir_data,
+ 		'pkgdatadir=' + join_paths('${pc_sysrootdir}${datarootdir}', dir_protocol_libweston)
+ 	],
++	dataonly: true,
+ 	install_dir: dir_data_pc
+ )
+ 

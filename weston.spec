@@ -22,13 +22,14 @@ Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
 Version:	9.0.0
-Release:	1
+Release:	2
 License:	MIT
 Group:		Applications
 #Source0Download: https://wayland.freedesktop.org/releases.html
 Source0:	https://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
 # Source0-md5:	b406da0fe9139fd39653238fde22a6cf
 Patch0:		%{name}-freerdp2.patch
+Patch1:		%{name}-noarch-protocols.patch
 URL:		https://wayland.freedesktop.org/
 BuildRequires:	Mesa-libEGL-devel >= 7.10
 # GLESv2
@@ -52,7 +53,8 @@ BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
 %{?with_libunwind:BuildRequires:	libunwind-devel}
 BuildRequires:	libwebp-devel
-BuildRequires:	meson >= 0.47
+# noarch-protocols patch requries 0.54.0
+BuildRequires:	meson >= 0.54.0
 BuildRequires:	ninja >= 1.5
 %{?with_pipewire:BuildRequires:	pipewire-devel >= 0.2}
 %{?with_pipewire:BuildRequires:	pipewire-devel < 0.3}
@@ -131,6 +133,22 @@ Header files for Weston plugin development.
 %description devel -l pl.UTF-8
 Pliki nagłówkowe do tworzenia wtyczek dla Westona.
 
+%package protocols
+Summary:	Weston protocol files
+Summary(pl.UTF-8):	Pliki protokołu Weston
+Group:		Libraries
+Conflicts:	weston < 9.0.0-2
+Conflicts:	weston-libs-devel < 9.0.0-2
+%if "%{_rpmversion}" >= "4.6"
+BuildArch:	noarch
+%endif
+
+%description protocols
+Weston protocol files.
+
+%description protocols -l pl.UTF-8
+Pliki protokołu Weston.
+
 %package libs
 Summary:	Weston compositor libraries
 Summary(pl.UTF-8):	Biblioteki serwera składania Weston
@@ -194,6 +212,7 @@ Wtyczka składająca RDP dla Westona.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 %meson build \
@@ -280,7 +299,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/weston/kiosk-shell.so
 %attr(755,root,root) %{_libdir}/weston/screen-share.so
 %attr(755,root,root) %{_libdir}/weston/systemd-notify.so
-%{_datadir}/libweston-9
 %{_datadir}/weston
 %dir %{_datadir}/wayland-sessions
 %{_datadir}/wayland-sessions/weston.desktop
@@ -294,6 +312,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_includedir}/weston
 %{_pkgconfigdir}/weston.pc
+
+%files protocols
+%defattr(644,root,root,755)
+%dir %{_datadir}/libweston-9
+%{_datadir}/libweston-9/protocols
+%{_npkgconfigdir}/libweston-9-protocols.pc
 
 %files libs
 %defattr(644,root,root,755)
@@ -329,7 +353,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/libweston-9
 %{_pkgconfigdir}/libweston-9.pc
 %{_pkgconfigdir}/libweston-desktop-9.pc
-%{_npkgconfigdir}/libweston-9-protocols.pc
 
 %if %{with rdp}
 %files compositor-rdp
