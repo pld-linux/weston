@@ -139,9 +139,7 @@ Summary(pl.UTF-8):	Pliki protokołu Weston
 Group:		Libraries
 Conflicts:	weston < 9.0.0-2
 Conflicts:	weston-libs-devel < 9.0.0-2
-%if "%{_rpmversion}" >= "4.6"
 BuildArch:	noarch
-%endif
 
 %description protocols
 Weston protocol files.
