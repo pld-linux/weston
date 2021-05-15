@@ -31,9 +31,8 @@ Source0:	https://wayland.freedesktop.org/releases/%{name}-%{version}.tar.xz
 Patch0:		%{name}-freerdp2.patch
 Patch1:		%{name}-noarch-protocols.patch
 URL:		https://wayland.freedesktop.org/
-BuildRequires:	Mesa-libEGL-devel >= 7.10
-# GLESv2
-BuildRequires:	Mesa-libGLES-devel
+BuildRequires:	EGL-devel
+BuildRequires:	OpenGLESv2-devel
 BuildRequires:	cairo-devel >= 1.10.0
 BuildRequires:	colord-devel >= 0.1.27
 BuildRequires:	dbus-devel >= 1.6
@@ -60,6 +59,8 @@ BuildRequires:	ninja >= 1.5
 %{?with_pipewire:BuildRequires:	pipewire-devel < 0.3}
 BuildRequires:	pixman-devel >= 0.26
 BuildRequires:	pkgconfig
+BuildRequires:	pkgconfig(egl)
+BuildRequires:	pkgconfig(glesv2)
 BuildRequires:	rpmbuild(macros) >= 1.736
 BuildRequires:	systemd-devel >= 1:209
 BuildRequires:	tar >= 1:1.22
@@ -123,9 +124,8 @@ Summary:	Header files for Weston plugin development
 Summary(pl.UTF-8):	Pliki nagłówkowe do tworzenia wtyczek dla Westona
 Group:		Development/Libraries
 Requires:	%{name}-libs-devel = %{version}-%{release}
-Requires:	Mesa-libEGL-devel >= 7.10
-# GLESv2
-Requires:	Mesa-libGLES-devel
+Requires:	EGL-devel
+Requires:	OpenGLESv2-devel
 
 %description devel
 Header files for Weston plugin development.
@@ -155,7 +155,6 @@ Requires:	wayland >= 1.17.0
 Requires:	pixman >= 0.26
 Requires:	xorg-lib-libxkbcommon >= 0.5.0
 # the rest is for modules:
-Requires:	Mesa-libEGL >= 7.10
 %{?with_drm:Requires:	Mesa-libgbm >= 17.2}
 Requires:	cairo >= 1.10.0
 Requires:	dbus-libs >= 1.6
