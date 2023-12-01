@@ -6,9 +6,9 @@ so use absolute datarootdir
  	version: version_weston,
  	description: 'libWeston protocol files',
  	variables: [
--		'datarootdir=' + join_paths('${prefix}', get_option('datadir')),
+-		'datarootdir=' + '${prefix}' / get_option('datadir'),
 +		'datarootdir=' + dir_data,
- 		'pkgdatadir=' + join_paths('${pc_sysrootdir}${datarootdir}', dir_protocol_libweston)
+ 		'pkgdatadir=' + '${pc_sysrootdir}${datarootdir}' / dir_protocol_libweston
  	],
 +	dataonly: true,
  	install_dir: dir_data_pc
