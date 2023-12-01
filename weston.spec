@@ -7,7 +7,6 @@
 %bcond_without	libunwind	# libunwind usage for backtraces
 %bcond_without	vaapi		# vaapi recorder
 %bcond_without	vnc		# VNC backend
-%bcond_with	wlaunch		# deprecated weston launch
 %bcond_without	xwayland	# X server launcher
 %bcond_without	dclients	# demo clients
 %bcond_without	sclients	# simple clients
@@ -101,7 +100,7 @@ BuildRequires:	pkgconfig(libva-drm) >= 0.34.0
 BuildRequires:	libxcb-devel >= 1.9
 BuildRequires:	xorg-lib-libX11-devel
 %endif
-%if %{with vnc} || %{with wlaunch}
+%if %{with vnc}
 BuildRequires:	pam-devel
 %endif
 %if %{with xwayland}
@@ -182,7 +181,6 @@ Requires:	libva-drm >= 1.2.0
 %endif
 %{?with_x11:Requires:	libxcb >= 1.9}
 %{?with_drm:Requires:	mtdev >= 1.1.0}
-%{?with_wlaunch:Requires:	systemd-libs >= 1:209}
 %{?with_drm:Requires:	udev-libs >= 1:136}
 Requires:	wayland-egl
 
@@ -241,7 +239,6 @@ Wtyczka składająca RDP dla Westona.
 	%{!?with_pipewire:-Dpipewire=false} \
 	%{!?with_remoting:-Dremoting=false} \
 	%{!?with_sclients:-Dsimple-clients=""} \
-	%{?with_wlaunch:-Ddeprecated-weston-launch=true} \
 	%{!?with_xwayland:-Dxwayland=false} \
 	-Dlauncher-libseat=%{__true_false libseat}
 
@@ -266,9 +263,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/weston
 %attr(755,root,root) %{_bindir}/weston-calibrator
 %attr(755,root,root) %{_bindir}/weston-debug
-%if %{with wlaunch}
-%attr(755,root,root) %{_bindir}/weston-launch
-%endif
 %attr(755,root,root) %{_bindir}/weston-screenshooter
 %attr(755,root,root) %{_bindir}/weston-terminal
 %attr(755,root,root) %{_bindir}/weston-touch-calibrator
