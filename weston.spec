@@ -21,13 +21,13 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	13.0.0
+Version:	13.0.1
 Release:	1
 License:	MIT
 Group:		Applications
 #Source0Download: https://gitlab.freedesktop.org/wayland/weston/-/releases/
 Source0:	https://gitlab.freedesktop.org/wayland/weston/-/releases/%{version}/downloads/%{name}-%{version}.tar.xz
-# Source0-md5:	cdd0ec2c360eebdf878f1b5d3113dc6c
+# Source0-md5:	5795b9bfcfdd5f62f170e8bb3f01a3a5
 Patch0:		%{name}-freerdp2.patch
 Patch1:		%{name}-noarch-protocols.patch
 URL:		https://wayland.freedesktop.org/
@@ -194,7 +194,7 @@ Summary:	Header files for libweston compositors development
 Summary(pl.UTF-8):	Pliki nagłówkowe do rozwijania modułów składających biblioteki libweston
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	pixman-devel >= 0.26 
+Requires:	pixman-devel >= 0.26
 # wayland-server
 Requires:	wayland-devel >= 1.22.0
 Requires:	xorg-lib-libxkbcommon-devel >= 0.5.0
