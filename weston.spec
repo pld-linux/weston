@@ -21,27 +21,27 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	13.0.3
+Version:	14.0.0
 Release:	1
 License:	MIT
 Group:		Applications
 #Source0Download: https://gitlab.freedesktop.org/wayland/weston/-/releases/
 Source0:	https://gitlab.freedesktop.org/wayland/weston/-/releases/%{version}/downloads/%{name}-%{version}.tar.xz
-# Source0-md5:	9e10833f807214b4b060a1a8db1e3057
+# Source0-md5:	2574abaf11a77de2c5886fdd134586ed
 Patch0:		%{name}-freerdp2.patch
 Patch1:		%{name}-noarch-protocols.patch
 URL:		https://wayland.freedesktop.org/
 BuildRequires:	EGL-devel
+BuildRequires:	Mesa-libgbm-devel >= 21.1.1
 BuildRequires:	OpenGLESv2-devel
 %if %{with vnc}
 BuildRequires:	aml-devel >= 0.3.0
 BuildRequires:	aml-devel < 0.4
 %endif
 BuildRequires:	cairo-devel >= 1.10.0
-BuildRequires:	colord-devel >= 0.1.27
 BuildRequires:	dbus-devel >= 1.6
 BuildRequires:	doxygen
-%{?with_rdp:BuildRequires:	freerdp2-devel >= 2.3.0}
+%{?with_rdp:BuildRequires:	freerdp3-devel >= 3.0.0}
 BuildRequires:	glib2-devel >= 1:2.36
 %if %{with remoting}
 BuildRequires:	gstreamer-devel >= 1.0
@@ -59,7 +59,7 @@ BuildRequires:	libwebp-devel
 BuildRequires:	meson >= 0.63.0
 %if %{with vnc}
 BuildRequires:	neatvnc-devel >= 0.7.0
-BuildRequires:	neatvnc-devel < 0.8
+BuildRequires:	neatvnc-devel < 0.9.0
 %endif
 BuildRequires:	ninja >= 1.5
 %{?with_pipewire:BuildRequires:	pipewire-devel >= 0.3}
@@ -76,14 +76,13 @@ BuildRequires:	tar >= 1:1.22
 BuildRequires:	wayland-devel >= 1.22.0
 # for wayland and sclients, but also desktop-shell, which is always enabled
 BuildRequires:	wayland-egl-devel
-BuildRequires:	wayland-protocols >= 1.31
+BuildRequires:	wayland-protocols >= 1.33
 BuildRequires:	xcb-util-cursor-devel
 BuildRequires:	xorg-lib-libxkbcommon-devel >= 0.5.0
 BuildRequires:	xz
 %if %{with drm}
-BuildRequires:	Mesa-libgbm-devel >= 21.1.1
 BuildRequires:	libdisplay-info-devel >= 0.1.1
-BuildRequires:	libdisplay-info-devel < 0.2
+BuildRequires:	libdisplay-info-devel < 0.3.0
 BuildRequires:	mtdev-devel >= 1.1.0
 BuildRequires:	udev-devel >= 1:136
 %endif
@@ -116,7 +115,6 @@ BuildRequires:	python3-breathe >= 4.11
 BuildRequires:	sphinx-pdg >= 2.1.0
 %endif
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	colord-libs >= 0.1.27
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -211,7 +209,7 @@ Summary:	RDP compositor plugin for Weston
 Summary(pl.UTF-8):	Wtyczka składająca RDP dla Westona
 Group:		Libraries
 Requires:	%{name} = %{version}-%{release}
-Requires:	freerdp2 >= 2.3.0
+Requires:	freerdp3 >= 3.0.0
 
 %description compositor-rdp
 RDP compositor plugin for Weston.
@@ -232,8 +230,6 @@ Wtyczka składająca RDP dla Westona.
 	%{!?with_rdp:-Dbackend-rdp=false} \
 	%{!?with_x11:-Dbackend-x11=false} \
 	%{!?with_dclients:-Ddemo-clients=""} \
-	-Ddeprecated-color-management-colord=true \
-	-Ddeprecated-color-management-static=true \
 	%{?with_apidocs:-Ddoc=true} \
 	%{!?with_pipewire:-Dpipewire=false} \
 	%{!?with_remoting:-Dremoting=false} \
@@ -300,8 +296,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/weston-simple-im
 %dir %{_libdir}/weston
 %attr(755,root,root) %{_libdir}/weston/libexec_weston.so*
-%attr(755,root,root) %{_libdir}/weston/cms-colord.so
-%attr(755,root,root) %{_libdir}/weston/cms-static.so
 %attr(755,root,root) %{_libdir}/weston/desktop-shell.so
 %attr(755,root,root) %{_libdir}/weston/fullscreen-shell.so
 %attr(755,root,root) %{_libdir}/weston/hmi-controller.so
@@ -325,52 +319,52 @@ rm -rf $RPM_BUILD_ROOT
 
 %files protocols
 %defattr(644,root,root,755)
-%dir %{_datadir}/libweston-13
-%{_datadir}/libweston-13/protocols
-%{_npkgconfigdir}/libweston-13-protocols.pc
+%dir %{_datadir}/libweston-14
+%{_datadir}/libweston-14/protocols
+%{_npkgconfigdir}/libweston-14-protocols.pc
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-13.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libweston-13.so.0
-%dir %{_libdir}/libweston-13
-%attr(755,root,root) %{_libdir}/libweston-13/color-lcms.so
+%attr(755,root,root) %{_libdir}/libweston-14.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libweston-14.so.0
+%dir %{_libdir}/libweston-14
+%attr(755,root,root) %{_libdir}/libweston-14/color-lcms.so
 %if %{with drm}
-%attr(755,root,root) %{_libdir}/libweston-13/drm-backend.so
+%attr(755,root,root) %{_libdir}/libweston-14/drm-backend.so
 %endif
-%attr(755,root,root) %{_libdir}/libweston-13/gl-renderer.so
-%attr(755,root,root) %{_libdir}/libweston-13/headless-backend.so
+%attr(755,root,root) %{_libdir}/libweston-14/gl-renderer.so
+%attr(755,root,root) %{_libdir}/libweston-14/headless-backend.so
 %if %{with pipewire}
-%attr(755,root,root) %{_libdir}/libweston-13/pipewire-backend.so
-%attr(755,root,root) %{_libdir}/libweston-13/pipewire-plugin.so
+%attr(755,root,root) %{_libdir}/libweston-14/pipewire-backend.so
+%attr(755,root,root) %{_libdir}/libweston-14/pipewire-plugin.so
 %endif
 %if %{with remoting}
-%attr(755,root,root) %{_libdir}/libweston-13/remoting-plugin.so
+%attr(755,root,root) %{_libdir}/libweston-14/remoting-plugin.so
 %endif
 %if %{with vnc}
-%attr(755,root,root) %{_libdir}/libweston-13/vnc-backend.so
+%attr(755,root,root) %{_libdir}/libweston-14/vnc-backend.so
 %endif
 %if %{with wayland}
-%attr(755,root,root) %{_libdir}/libweston-13/wayland-backend.so
+%attr(755,root,root) %{_libdir}/libweston-14/wayland-backend.so
 %endif
 %if %{with x11}
-%attr(755,root,root) %{_libdir}/libweston-13/x11-backend.so
+%attr(755,root,root) %{_libdir}/libweston-14/x11-backend.so
 %endif
 %if %{with xwayland}
-%attr(755,root,root) %{_libdir}/libweston-13/xwayland.so
+%attr(755,root,root) %{_libdir}/libweston-14/xwayland.so
 %endif
 %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/weston-remote-access
 %{_mandir}/man7/weston-vnc.7*
 
 %files libs-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-13.so
-%{_includedir}/libweston-13
-%{_pkgconfigdir}/libweston-13.pc
+%attr(755,root,root) %{_libdir}/libweston-14.so
+%{_includedir}/libweston-14
+%{_pkgconfigdir}/libweston-14.pc
 
 %if %{with rdp}
 %files compositor-rdp
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-13/rdp-backend.so
+%attr(755,root,root) %{_libdir}/libweston-14/rdp-backend.so
 %{_mandir}/man7/weston-rdp.7*
 %endif
