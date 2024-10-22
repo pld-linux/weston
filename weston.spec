@@ -21,13 +21,13 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	14.0.0
+Version:	14.0.1
 Release:	1
 License:	MIT
 Group:		Applications
 #Source0Download: https://gitlab.freedesktop.org/wayland/weston/-/releases/
 Source0:	https://gitlab.freedesktop.org/wayland/weston/-/releases/%{version}/downloads/%{name}-%{version}.tar.xz
-# Source0-md5:	2574abaf11a77de2c5886fdd134586ed
+# Source0-md5:	cd958642f4729e6a8f9153e6790e5f5d
 Patch0:		%{name}-freerdp2.patch
 Patch1:		%{name}-noarch-protocols.patch
 URL:		https://wayland.freedesktop.org/
