@@ -22,7 +22,7 @@ Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
 Version:	14.0.1
-Release:	1
+Release:	2
 License:	MIT
 Group:		Applications
 #Source0Download: https://gitlab.freedesktop.org/wayland/weston/-/releases/
@@ -219,8 +219,8 @@ Wtyczka składająca RDP dla Westona.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
+%patch -P 0 -p1
+%patch -P 1 -p1
 
 %build
 %meson build \
