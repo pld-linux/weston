@@ -223,7 +223,7 @@ Wtyczka składająca RDP dla Westona.
 %patch -P 1 -p1
 
 %build
-%meson build \
+%meson \
 	%{!?with_drm:-Dbackend-drm=false} \
 	%{!?with_vaapi:-Dbackend-drm-screencast-vaapi=false} \
 	%{!?with_pipewire:-Dbackend-pipewire=false} \
@@ -236,12 +236,12 @@ Wtyczka składająca RDP dla Westona.
 	%{!?with_sclients:-Dsimple-clients=""} \
 	%{!?with_xwayland:-Dxwayland=false}
 
-%ninja_build -C build
+%meson_build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%ninja_install -C build
+%meson_install
 
 %clean
 rm -rf $RPM_BUILD_ROOT
