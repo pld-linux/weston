@@ -21,13 +21,13 @@
 Summary:	Weston - Wayland demos
 Summary(pl.UTF-8):	Weston - programy demonstracyjne dla protokołu Wayland
 Name:		weston
-Version:	14.0.1
-Release:	2
+Version:	14.0.2
+Release:	1
 License:	MIT
 Group:		Applications
 #Source0Download: https://gitlab.freedesktop.org/wayland/weston/-/releases/
 Source0:	https://gitlab.freedesktop.org/wayland/weston/-/releases/%{version}/downloads/%{name}-%{version}.tar.xz
-# Source0-md5:	cd958642f4729e6a8f9153e6790e5f5d
+# Source0-md5:	4575a052e2ff3ea7819cfbf33868f8f5
 Patch0:		%{name}-freerdp2.patch
 Patch1:		%{name}-noarch-protocols.patch
 URL:		https://wayland.freedesktop.org/
@@ -59,7 +59,7 @@ BuildRequires:	libwebp-devel
 BuildRequires:	meson >= 0.63.0
 %if %{with vnc}
 BuildRequires:	neatvnc-devel >= 0.7.0
-BuildRequires:	neatvnc-devel < 0.9.0
+BuildRequires:	neatvnc-devel < 0.10.0
 %endif
 BuildRequires:	ninja >= 1.5
 %{?with_pipewire:BuildRequires:	pipewire-devel >= 0.3}
