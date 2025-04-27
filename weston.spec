@@ -234,7 +234,8 @@ Wtyczka składająca RDP dla Westona.
 	%{!?with_pipewire:-Dpipewire=false} \
 	%{!?with_remoting:-Dremoting=false} \
 	%{!?with_sclients:-Dsimple-clients=""} \
-	%{!?with_xwayland:-Dxwayland=false}
+	%{!?with_xwayland:-Dxwayland=false} \
+	-Dtests=false
 
 %meson_build
 
