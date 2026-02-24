@@ -119,6 +119,7 @@ BuildRequires:	xorg-xserver-Xwayland-devel
 %if %{with apidocs}
 BuildRequires:	doxygen >= 1:1.8
 BuildRequires:	python3-breathe >= 4.11
+BuildRequires:	python3-sphinx_rtd_theme
 BuildRequires:	sphinx-pdg >= 2.1.0
 %endif
 Requires:	%{name}-libs = %{version}-%{release}
@@ -224,6 +225,18 @@ RDP compositor plugin for Weston.
 %description compositor-rdp -l pl.UTF-8
 Wtyczka składająca RDP dla Westona.
 
+%package apidocs
+Summary:	Weston API documentation
+Summary(pl.UTF-8):	Dokumentacja API Westona
+Group:		Documentation
+BuildArch:	noarch
+
+%description apidocs
+Weston API documentation.
+
+%description apidocs -l pl.UTF-8
+Dokumentacja API Westona.
+
 %prep
 %setup -q
 %patch -P 0 -p1
@@ -254,6 +267,10 @@ Wtyczka składająca RDP dla Westona.
 rm -rf $RPM_BUILD_ROOT
 
 %meson_install
+
+%if %{with apidocs}
+%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/weston/{_sources,objects.inv}
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -306,22 +323,24 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/weston-simple-touch
 %{?with_vulkan:%attr(755,root,root) %{_bindir}/weston-simple-vulkan}
 %endif
+%if "%{_libexecdir}" != "%{_libdir}"
 %dir %{_libexecdir}/weston
+%endif
 %{_libexecdir}/weston/shell.lua
 %attr(755,root,root) %{_libexecdir}/weston/weston-desktop-shell
 %attr(755,root,root) %{_libexecdir}/weston/weston-ivi-shell-user-interface
 %attr(755,root,root) %{_libexecdir}/weston/weston-keyboard
 %attr(755,root,root) %{_libexecdir}/weston/weston-simple-im
 %dir %{_libdir}/weston
-%attr(755,root,root) %{_libdir}/weston/libexec_weston.so*
-%attr(755,root,root) %{_libdir}/weston/desktop-shell.so
-%attr(755,root,root) %{_libdir}/weston/fullscreen-shell.so
-%attr(755,root,root) %{_libdir}/weston/hmi-controller.so
-%attr(755,root,root) %{_libdir}/weston/ivi-shell.so
-%attr(755,root,root) %{_libdir}/weston/kiosk-shell.so
-%attr(755,root,root) %{_libdir}/weston/lua-shell.so
-%attr(755,root,root) %{_libdir}/weston/screen-share.so
-%attr(755,root,root) %{_libdir}/weston/systemd-notify.so
+%{_libdir}/weston/libexec_weston.so*
+%{_libdir}/weston/desktop-shell.so
+%{_libdir}/weston/fullscreen-shell.so
+%{_libdir}/weston/hmi-controller.so
+%{_libdir}/weston/ivi-shell.so
+%{_libdir}/weston/kiosk-shell.so
+%{_libdir}/weston/lua-shell.so
+%{_libdir}/weston/screen-share.so
+%{_libdir}/weston/systemd-notify.so
 %{_datadir}/weston
 %dir %{_datadir}/wayland-sessions
 %{_datadir}/wayland-sessions/weston.desktop
@@ -344,49 +363,55 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-15.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libweston-15.so.0
+%{_libdir}/libweston-15.so.*.*.*
+%ghost %{_libdir}/libweston-15.so.0
 %dir %{_libdir}/libweston-15
-%attr(755,root,root) %{_libdir}/libweston-15/color-lcms.so
+%{_libdir}/libweston-15/color-lcms.so
 %if %{with drm}
-%attr(755,root,root) %{_libdir}/libweston-15/drm-backend.so
+%{_libdir}/libweston-15/drm-backend.so
 %endif
-%attr(755,root,root) %{_libdir}/libweston-15/gl-renderer.so
-%attr(755,root,root) %{_libdir}/libweston-15/headless-backend.so
+%{_libdir}/libweston-15/gl-renderer.so
+%{_libdir}/libweston-15/headless-backend.so
 %if %{with pipewire}
-%attr(755,root,root) %{_libdir}/libweston-15/pipewire-backend.so
-%attr(755,root,root) %{_libdir}/libweston-15/pipewire-plugin.so
+%{_libdir}/libweston-15/pipewire-backend.so
+%{_libdir}/libweston-15/pipewire-plugin.so
 %endif
 %if %{with remoting}
-%attr(755,root,root) %{_libdir}/libweston-15/remoting-plugin.so
+%{_libdir}/libweston-15/remoting-plugin.so
 %endif
 %if %{with vnc}
-%attr(755,root,root) %{_libdir}/libweston-15/vnc-backend.so
+%{_libdir}/libweston-15/vnc-backend.so
 %endif
 %if %{with vulkan}
-%attr(755,root,root) %{_libdir}/libweston-15/vulkan-renderer.so
+%{_libdir}/libweston-15/vulkan-renderer.so
 %endif
 %if %{with wayland}
-%attr(755,root,root) %{_libdir}/libweston-15/wayland-backend.so
+%{_libdir}/libweston-15/wayland-backend.so
 %endif
 %if %{with x11}
-%attr(755,root,root) %{_libdir}/libweston-15/x11-backend.so
+%{_libdir}/libweston-15/x11-backend.so
 %endif
 %if %{with xwayland}
-%attr(755,root,root) %{_libdir}/libweston-15/xwayland.so
+%{_libdir}/libweston-15/xwayland.so
 %endif
 %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/weston-remote-access
 %{_mandir}/man7/weston-vnc.7*
 
 %files libs-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-15.so
+%{_libdir}/libweston-15.so
 %{_includedir}/libweston-15
 %{_pkgconfigdir}/libweston-15.pc
 
 %if %{with rdp}
 %files compositor-rdp
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libweston-15/rdp-backend.so
+%{_libdir}/libweston-15/rdp-backend.so
 %{_mandir}/man7/weston-rdp.7*
+%endif
+
+%if %{with apidocs}
+%files apidocs
+%defattr(644,root,root,755)
+%{_docdir}/weston
 %endif
